@@ -7,7 +7,7 @@
     using Math;
 
     [TestFixture(typeof(UnionNaive))]
-    [TestFixture(typeof(UnionPlaneSweep))]
+    [TestFixture(typeof(UnionSweepLine))]
     public class IUnionTests<TUnion> where TUnion : IUnion, new()
     {
         private TUnion m_union;
