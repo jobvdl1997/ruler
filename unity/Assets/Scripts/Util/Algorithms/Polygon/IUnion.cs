@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Util.Geometry;
-using Util.Geometry.Polygon;
-
-namespace Util.Algorithms.Polygon
+﻿namespace Util.Algorithms.Polygon
 {
+    using System.Collections.Generic;
+    using Util.Geometry.Polygon;
+    
     /// <summary>
     /// This interface defines methods that can be used to calculate the union
     /// of polygons
@@ -21,7 +17,6 @@ namespace Util.Algorithms.Polygon
         /// </param>
         /// <returns>A new polygon which is the union of the polygons defined in
         /// <paramref name="polygons"/></returns>
-        IPolygon2D Union(ICollection<IPolygon2D> polygons);
-
+        IPolygon2D Union(ICollection<Polygon2D> polygons);
     }
 }
