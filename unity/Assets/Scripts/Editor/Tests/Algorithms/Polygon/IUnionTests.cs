@@ -1,4 +1,6 @@
-﻿namespace Util.Algorithms.Polygon.Tests
+﻿using System.Linq;
+
+namespace Util.Algorithms.Polygon.Tests
 {
     using System.Collections.Generic;
     using NUnit.Framework;
@@ -66,57 +68,57 @@
         [Test]
         public void UnionTest1()
         {
-            var cutout = m_union.Union(new List<Polygon2D> {m_verticalRect, m_horizontalRect});
-            Assert.AreEqual(2f, cutout.Area, MathUtil.EPS);
+            var union = m_union.Union(new List<Polygon2D> {m_verticalRect, m_horizontalRect});
+            Assert.AreEqual(10f, union.Area, MathUtil.EPS);
         }
 
         [Test]
         public void UnionTest2()
         {
-            var cutout = m_union.Union(new List<Polygon2D> {m_horizontalRect, m_verticalRect});
-            Assert.AreEqual(6f, cutout.Area, MathUtil.EPS);
+            var union = m_union.Union(new List<Polygon2D> {m_horizontalRect, m_verticalRect});
+            Assert.AreEqual(10f, union.Area, MathUtil.EPS);
         }
 
         [Test]
         public void UnionRectFromSquareCollinearTest1()
         {
             var remainder = m_union.Union(new List<Polygon2D> {m_unitSquare, m_2by1rect});
-            Assert.AreEqual(0f, remainder.Area, MathUtil.EPS);
+            Assert.AreEqual(2f, remainder.Area, MathUtil.EPS);
         }
 
         [Test]
         public void UnionSquareFromRectCollinearTest1()
         {
             var remainder = m_union.Union(new List<Polygon2D> {m_2by1rect, m_unitSquare});
-            Assert.AreEqual(1f, remainder.Area, MathUtil.EPS);
+            Assert.AreEqual(2f, remainder.Area, MathUtil.EPS);
         }
 
         [Test]
         public void UnionRectFromSquareCollinearTest2()
         {
             var remainder = m_union.Union(new List<Polygon2D> {m_unitSquare, m_1by2rect});
-            Assert.AreEqual(0f, remainder.Area, MathUtil.EPS);
+            Assert.AreEqual(2f, remainder.Area, MathUtil.EPS);
         }
 
         [Test]
         public void UnionSquareFromRectCollinearTest2()
         {
             var remainder = m_union.Union(new List<Polygon2D> {m_1by2rect, m_unitSquare});
-            Assert.AreEqual(1f, remainder.Area, MathUtil.EPS);
+            Assert.AreEqual(2f, remainder.Area, MathUtil.EPS);
         }
 
         [Test]
         public void UnionRectFromRectCollinearTest1()
         {
             var remainder = m_union.Union(new List<Polygon2D> {m_1by2rect, m_2by1rect});
-            Assert.AreEqual(1f, remainder.Area, MathUtil.EPS);
+            Assert.AreEqual(3f, remainder.Area, MathUtil.EPS);
         }
 
         [Test]
         public void UnionRectFromRectCollinearTest2()
         {
             var remainder = m_union.Union(new List<Polygon2D> {m_2by1rect, m_1by2rect});
-            Assert.AreEqual(1f, remainder.Area, MathUtil.EPS);
+            Assert.AreEqual(3f, remainder.Area, MathUtil.EPS);
         }
 
         [Test]
@@ -135,10 +137,53 @@
             var square = new Polygon2D(squareVertices);
 
             var unionResult = m_union.Union(new List<Polygon2D> {square, horizontalRect});
-            Assert.AreEqual(1f, unionResult.Area, MathUtil.EPS);
+            Assert.AreEqual(3f, unionResult.Area, MathUtil.EPS);
 
             unionResult = m_union.Union(new List<Polygon2D> {horizontalRect, square});
-            Assert.AreEqual(2f, unionResult.Area, MathUtil.EPS);
+            Assert.AreEqual(3f, unionResult.Area, MathUtil.EPS);
+        }
+
+        [Test]
+        public void UnionSimpleConvexPolygonsTest1()
+        {
+            // Area = 11 * 24 / 2 = 132
+            // Full area is used = 132
+            var triangle1 = new Polygon2D(new List<Vector2>
+            {
+                new Vector2(5, 1), new Vector2(5, 25), new Vector2(16, 1)
+            });
+            // Area = 9 * 5 = 45
+            // Area in union: 45 - 5*5 = 20
+            var rect1 = new Polygon2D(new List<Vector2>
+            {
+                new Vector2(5, 1), new Vector2(10, 1), new Vector2(10, 10), new Vector2(5, 10)
+            });
+            // Area = 5 * 9 = 45
+            // Area in union: 45 - 45 = 0
+            var rect2 = new Polygon2D(new List<Vector2>
+            {
+                new Vector2(0, 10), new Vector2(9, 10), new Vector2(9, 15), new Vector2(0, 15)
+            });
+            // Area = 87.5
+            // Full area is used = 87.5
+            var polygon1 = new Polygon2D(new List<Vector2>
+            {
+                new Vector2(15, 15), new Vector2(20, 15), new Vector2(20, 30), new Vector2(10, 20)
+            });
+            // Area = 5 * 15 = 75
+            // Area in union: 75 - 5*5/2 = 62.5
+            var rect3 = new Polygon2D(new List<Vector2>
+            {
+                new Vector2(15, 15), new Vector2(20, 15), new Vector2(20, 30), new Vector2(15, 30)
+            });
+
+            var polygon2Ds = new List<Polygon2D> {triangle1, rect1, rect2, polygon1, rect3};
+
+            var sumResult = polygon2Ds.Sum(p => p.Area);
+            Assert.AreEqual(384.5f, sumResult, MathUtil.EPS);
+
+            var unionResult = m_union.Union(polygon2Ds);
+            Assert.AreEqual(302f, unionResult.Area, MathUtil.EPS);
         }
     }
 }
