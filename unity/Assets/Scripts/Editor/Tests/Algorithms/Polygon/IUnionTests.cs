@@ -66,57 +66,57 @@
         [Test]
         public void UnionTest1()
         {
-            var cutout = m_union.Union(new List<Polygon2D> {m_verticalRect, m_horizontalRect});
-            Assert.AreEqual(2f, cutout.Area, MathUtil.EPS);
+            var union = m_union.Union(new List<Polygon2D> {m_verticalRect, m_horizontalRect});
+            Assert.AreEqual(10f, union.Area, MathUtil.EPS);
         }
 
         [Test]
         public void UnionTest2()
         {
-            var cutout = m_union.Union(new List<Polygon2D> {m_horizontalRect, m_verticalRect});
-            Assert.AreEqual(6f, cutout.Area, MathUtil.EPS);
+            var union = m_union.Union(new List<Polygon2D> {m_horizontalRect, m_verticalRect});
+            Assert.AreEqual(10f, union.Area, MathUtil.EPS);
         }
 
         [Test]
         public void UnionRectFromSquareCollinearTest1()
         {
             var remainder = m_union.Union(new List<Polygon2D> {m_unitSquare, m_2by1rect});
-            Assert.AreEqual(0f, remainder.Area, MathUtil.EPS);
+            Assert.AreEqual(2f, remainder.Area, MathUtil.EPS);
         }
 
         [Test]
         public void UnionSquareFromRectCollinearTest1()
         {
             var remainder = m_union.Union(new List<Polygon2D> {m_2by1rect, m_unitSquare});
-            Assert.AreEqual(1f, remainder.Area, MathUtil.EPS);
+            Assert.AreEqual(2f, remainder.Area, MathUtil.EPS);
         }
 
         [Test]
         public void UnionRectFromSquareCollinearTest2()
         {
             var remainder = m_union.Union(new List<Polygon2D> {m_unitSquare, m_1by2rect});
-            Assert.AreEqual(0f, remainder.Area, MathUtil.EPS);
+            Assert.AreEqual(2f, remainder.Area, MathUtil.EPS);
         }
 
         [Test]
         public void UnionSquareFromRectCollinearTest2()
         {
             var remainder = m_union.Union(new List<Polygon2D> {m_1by2rect, m_unitSquare});
-            Assert.AreEqual(1f, remainder.Area, MathUtil.EPS);
+            Assert.AreEqual(2f, remainder.Area, MathUtil.EPS);
         }
 
         [Test]
         public void UnionRectFromRectCollinearTest1()
         {
             var remainder = m_union.Union(new List<Polygon2D> {m_1by2rect, m_2by1rect});
-            Assert.AreEqual(1f, remainder.Area, MathUtil.EPS);
+            Assert.AreEqual(3f, remainder.Area, MathUtil.EPS);
         }
 
         [Test]
         public void UnionRectFromRectCollinearTest2()
         {
             var remainder = m_union.Union(new List<Polygon2D> {m_2by1rect, m_1by2rect});
-            Assert.AreEqual(1f, remainder.Area, MathUtil.EPS);
+            Assert.AreEqual(3f, remainder.Area, MathUtil.EPS);
         }
 
         [Test]
@@ -135,10 +135,10 @@
             var square = new Polygon2D(squareVertices);
 
             var unionResult = m_union.Union(new List<Polygon2D> {square, horizontalRect});
-            Assert.AreEqual(1f, unionResult.Area, MathUtil.EPS);
+            Assert.AreEqual(3f, unionResult.Area, MathUtil.EPS);
 
             unionResult = m_union.Union(new List<Polygon2D> {horizontalRect, square});
-            Assert.AreEqual(2f, unionResult.Area, MathUtil.EPS);
+            Assert.AreEqual(3f, unionResult.Area, MathUtil.EPS);
         }
     }
 }
