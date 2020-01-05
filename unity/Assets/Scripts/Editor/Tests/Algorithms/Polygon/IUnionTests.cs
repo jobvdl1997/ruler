@@ -183,7 +183,7 @@ namespace Util.Algorithms.Polygon.Tests
             Assert.AreEqual(384.5f, sumResult, MathUtil.EPS);
 
             var unionResult = m_union.Union(polygon2Ds);
-            Assert.AreEqual(302f, unionResult.Area, MathUtil.EPS);
+            Assert.AreEqual(257f, unionResult.Area, MathUtil.EPS);
         }
     }
 }

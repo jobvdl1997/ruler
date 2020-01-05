@@ -1,4 +1,7 @@
-﻿namespace Util.DataStructures.BST
+﻿using System.Collections;
+using System.Collections.Generic;
+
+namespace Util.DataStructures.BST
 {
     using System;
 
@@ -42,6 +45,22 @@
         bool FindMin(out T out_MinValue);
 
         /// <summary>
+        /// Finds next smaller compared to given data value.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="out_NextSmallest"></param>
+        /// <returns>whether the method was succesful.</returns>
+        bool FindNextSmallest(T data, out T out_NextSmallest);
+        
+        /// <summary>
+        /// Finds next bigger value compared to given data value.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="out_NextBiggest"></param>
+        /// <returns>whether the method was succesful.</returns>
+        bool FindNextBiggest(T data, out T out_NextBiggest);
+
+        /// <summary>
         /// Delete the given data value from the tree.
         /// </summary>
         /// <param name="data"></param>
@@ -64,5 +83,7 @@
         /// Clears the tree of all nodes.
         /// </summary>
         void Clear();
+
+        IEnumerable<T> Iterator();
     }
 }

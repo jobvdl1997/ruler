@@ -1,60 +1,33 @@
-﻿namespace Util.Algorithms.Polygon
-{
-    using System;
-    using System.Collections.Generic;
-    using UnityEngine;
-    using Util.DataStructures.BST;
-    using Util.Geometry.Polygon;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Util.Geometry.Contour;
+using Util.Geometry.Polygon;
 
+namespace Util.Algorithms.Polygon
+{
     /// <summary>
-    /// Implements the <see cref="Union"/> method by using a planeSweep approach
+    /// Implements the <see cref="Union"/> method by using a Martinez sweep line approach.
     /// </summary>
-    public class UnionSweepLine : SweepLine<UnionSweepLine.StatusItem>, IUnion
+    public class UnionSweepLine : IUnion
     {
         /// <inheritdoc />
         public IPolygon2D Union(ICollection<Polygon2D> polygons)
         {
-            // TODO: Set up event queue and status tree
-            VerticalSweep(this.HandleEvent);
-
-            // TODO: Return result
-            throw new NotImplementedException("UnionSweepLine is not yet implemented");
-        }
-
-        private void HandleEvent(IBST<ISweepEvent<StatusItem>> events, IBST<StatusItem> status,
-            ISweepEvent<StatusItem> ev)
-        {
-        }
-
-        public class SweepEvent : ISweepEvent<StatusItem>
-        {
-            public int CompareTo(ISweepEvent<StatusItem> other)
+            if (polygons.Count == 0)
             {
-                throw new NotImplementedException();
+                return new MultiPolygon2D();
             }
 
-            public bool Equals(ISweepEvent<StatusItem> other)
-            {
-                throw new NotImplementedException();
-            }
+            var result = polygons.First().ToContourPolygon();
 
-            public Vector2 Pos { get; private set; }
-            public StatusItem StatusItem { get; private set; }
-            public bool IsStart { get; private set; }
-            public bool IsEnd { get; private set; }
-        }
-
-        public class StatusItem : IComparable<StatusItem>, IEquatable<StatusItem>
-        {
-            public int CompareTo(StatusItem other)
+            foreach (Polygon2D polygon in polygons.Skip(1))
             {
-                throw new NotImplementedException();
+                var martinez = new Martinez(result, polygon.ToContourPolygon(), Martinez.OperationType.Union);
+                
+                result = martinez.Run();
             }
-
-            public bool Equals(StatusItem other)
-            {
-                throw new NotImplementedException();
-            }
+            
+            return result;
         }
     }
 }

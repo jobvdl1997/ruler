@@ -67,7 +67,10 @@
 
             foreach (var item in items)
             {
-                Events.Insert(item);
+                if (!Events.Insert(item))
+                {
+                    throw new ArgumentException(string.Format("Failed to insert event {0}", item));
+                }
             }
 
             return Events;
