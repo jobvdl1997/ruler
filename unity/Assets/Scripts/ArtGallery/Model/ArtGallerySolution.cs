@@ -40,7 +40,7 @@
         {
             m_objects = new List<GameObject>();
             m_lighthouses = new List<ArtGalleryLightHouse>();
-            m_union = new UnionNaive();
+            m_union = new UnionSweepLine();
         }
 
         /// <summary>

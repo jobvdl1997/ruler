@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using UnityEngine;
 using Util.Geometry.Contour;
 using Util.Geometry.Polygon;
 
@@ -18,16 +20,39 @@ namespace Util.Algorithms.Polygon
                 return new MultiPolygon2D();
             }
 
-            var result = polygons.First().ToContourPolygon();
-
-            foreach (Polygon2D polygon in polygons.Skip(1))
+            try
             {
-                var martinez = new Martinez(result, polygon.ToContourPolygon(), Martinez.OperationType.Union);
-                
-                result = martinez.Run();
+                var result = polygons.First().ToContourPolygon();
+
+                foreach (var polygon in polygons.Skip(1))
+                {
+                    var martinez = new Martinez(result, polygon.ToContourPolygon(), Martinez.OperationType.Union);
+
+                    result = martinez.Run();
+                }
+
+                return result;
             }
-            
-            return result;
+            catch (System.Exception e)
+            {
+                var builder = new StringBuilder();
+
+                int i = 0;
+                foreach (var polygon2D in polygons)
+                {
+                    builder.AppendFormat("var polygon{0} = new Polygon2D(new List<Vector2> {1}", i++, "{");
+                    foreach (var vertex in polygon2D.Vertices)
+                    {
+                        builder.AppendFormat("new Vector2({0}f, {1}f), ", vertex.x, vertex.y);
+                    }
+
+                    builder.Append("});\n");
+                }
+
+                Debug.Log(builder.ToString());
+                
+                throw e;
+            }
         }
     }
 }

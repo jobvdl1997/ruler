@@ -58,6 +58,11 @@
         // Update is called once per frame
         void Update()
         {
+            if (Input.GetKeyUp(KeyCode.PageUp))
+            {
+                AdvanceLevel();
+            }
+
             // return if no lighthouse was selected since last update
             if (m_selectedLighthouse == null) return;
 

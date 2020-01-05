@@ -185,5 +185,29 @@ namespace Util.Algorithms.Polygon.Tests
             var unionResult = m_union.Union(polygon2Ds);
             Assert.AreEqual(257f, unionResult.Area, MathUtil.EPS);
         }
+
+        [Test]
+        public void UnionTest3()
+        {
+            // TODO: Something similar to this fails in the game, but not yet reproducible
+            var polygon0 = new Polygon2D(new List<Vector2>
+            {
+                new Vector2(4.00124f, -0.9741771f), new Vector2(1.329107f, 0.0009262562f),
+                new Vector2(-1.329329f, -0.003419161f), new Vector2(-1.336399f, -2.668384f),
+                new Vector2(-4.00066f, -2.661608f), new Vector2(-4.00317f, 2.666523f), new Vector2(4.00428f, 2.665259f),
+            });
+            var polygon1 = new Polygon2D(new List<Vector2>
+            {
+                new Vector2(4.00124f, -2.664724f), new Vector2(1.333887f, -2.663425f),
+                new Vector2(1.329107f, 0.0009263754f), new Vector2(-1.329329f, -0.003419101f),
+                new Vector2(-4.00317f, -0.7164398f), new Vector2(-4.00317f, 2.666523f),
+                new Vector2(4.00428f, 2.665259f),
+            });
+
+            var polygon2Ds = new List<Polygon2D> {polygon0, polygon1};
+
+            var unionResult = m_union.Union(polygon2Ds);
+            Debug.Log(unionResult.Area);
+        }
     }
 }
