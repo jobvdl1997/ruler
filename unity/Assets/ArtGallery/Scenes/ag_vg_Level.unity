@@ -814,6 +814,11 @@ Prefab:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 23476201235894956, guid: df3d444a912111e4dada71b6deec06cc,
+        type: 2}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 4c399a9beccafcb49b6f2db766abed3e, type: 2}
     m_RemovedComponents:
     - {fileID: 114624802737080694, guid: df3d444a912111e4dada71b6deec06cc, type: 2}
   m_SourcePrefab: {fileID: 100100000, guid: df3d444a912111e4dada71b6deec06cc, type: 2}
@@ -843,7 +848,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f945461e934c04f858292a72109dcba0, type: 3}
   - {fileID: 11400000, guid: 6132afc7f5e4843ea8ad856fbf81b72b, type: 3}
   m_victoryScreen: agVictory
-  m_lighthousePrefab: {fileID: 189480, guid: 52e5a999253ee854c99f4ecc1a19d437, type: 2}
+  m_lighthousePrefab: {fileID: 189480, guid: fa103757a7ad3524da593486405a0352, type: 2}
   m_advanceButton: {fileID: 2135131466}
   m_lighthouseText: {fileID: 148341695}
 --- !u!1 &2028647603
