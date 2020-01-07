@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -20,39 +21,32 @@ namespace Util.Algorithms.Polygon
                 return new MultiPolygon2D();
             }
 
-            try
+            var builder = new StringBuilder();
+
+            int i = 0;
+            foreach (var polygon2D in polygons)
             {
-                var result = polygons.First().ToContourPolygon();
-
-                foreach (var polygon in polygons.Skip(1))
+                builder.AppendFormat("var polygon{0} = new Polygon2D(new List<Vector2> {1}", i++, "{");
+                foreach (var vertex in polygon2D.Vertices)
                 {
-                    var martinez = new Martinez(result, polygon.ToContourPolygon(), Martinez.OperationType.Union);
-
-                    result = martinez.Run();
+                    builder.AppendFormat("new Vector2(BitConverter.ToSingle(Convert.FromBase64String(\"{0}\"), 0), BitConverter.ToSingle(Convert.FromBase64String(\"{1}\"), 0)), ", Convert.ToBase64String(BitConverter.GetBytes(vertex.x)), Convert.ToBase64String(BitConverter.GetBytes(vertex.y)));
                 }
 
-                return result;
+                builder.Append("});\n");
             }
-            catch (System.Exception e)
+
+            Debug.Log(builder.ToString());
+
+            var result = polygons.First().ToContourPolygon();
+
+            foreach (var polygon in polygons.Skip(1))
             {
-                var builder = new StringBuilder();
+                var martinez = new Martinez(result, polygon.ToContourPolygon(), Martinez.OperationType.Union);
 
-                int i = 0;
-                foreach (var polygon2D in polygons)
-                {
-                    builder.AppendFormat("var polygon{0} = new Polygon2D(new List<Vector2> {1}", i++, "{");
-                    foreach (var vertex in polygon2D.Vertices)
-                    {
-                        builder.AppendFormat("new Vector2({0}f, {1}f), ", vertex.x, vertex.y);
-                    }
-
-                    builder.Append("});\n");
-                }
-
-                Debug.Log(builder.ToString());
-                
-                throw e;
+                result = martinez.Run();
             }
+
+            return result;
         }
     }
 }

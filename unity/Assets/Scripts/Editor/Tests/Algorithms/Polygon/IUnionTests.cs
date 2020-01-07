@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using Util.Geometry.Contour;
 
 namespace Util.Algorithms.Polygon.Tests
 {
@@ -207,6 +209,54 @@ namespace Util.Algorithms.Polygon.Tests
             var polygon2Ds = new List<Polygon2D> {polygon0, polygon1};
 
             var unionResult = m_union.Union(polygon2Ds);
+            Debug.Log(unionResult.Area);
+        }
+
+        [Test]
+        public void UnionTest4()
+        {
+            var polygon0 = new Polygon2D(new List<Vector2>
+            {
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("KAqAQA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("ODJnvw=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("MiCqPw=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("ANhyOg=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("cieqvw=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("ABRguw=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("Ig+rvw=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("zsYqwA=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("agWAwA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("ylcqwA=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("9hmAwA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("TqgqQA=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("ECOAQA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("nJMqQA=="), 0)),
+            });
+            var polygon1 = new Polygon2D(new List<Vector2>
+            {
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("KAqAQA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("2IoqwA=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("0LyqPw=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("j3UqwA=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("MCCqPw=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("ANxyOg=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("dieqvw=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("AA9guw=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("+BmAwA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("RGUTvw=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("+BmAwA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("TKgqQA=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("DyOAQA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("nJMqQA=="), 0)),
+            });
+
+            var polygon2Ds = new List<Polygon2D> {polygon0, polygon1};
+
+            var unionResult = m_union.Union(polygon2Ds);
+            var pol = unionResult as ContourPolygon;
+            Debug.Log(polygon0.ToContourPolygon().Visualize());
+            Debug.Log(polygon1.ToContourPolygon().Visualize());
+            Debug.Log(pol.Visualize());
             Debug.Log(unionResult.Area);
         }
     }
