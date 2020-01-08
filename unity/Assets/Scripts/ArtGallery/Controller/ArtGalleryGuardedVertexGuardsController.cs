@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ArtGallery;
-using General.Controller;
-using UnityEngine;
 
 namespace ArtGallery
 {
@@ -49,7 +46,7 @@ namespace ArtGallery
 
             // move lighthouse to mouse position
             // will update visibility polygon
-            Vector3 location = ClosestVertex(worldlocation, true);
+            Vector3 location = ClosestVertex(worldlocation);
             location.z = -2f;
             m_selectedLighthouse.Pos = location;
 
@@ -72,14 +69,10 @@ namespace ArtGallery
             }
         }
 
+        /// <summary> Find closest vertex to a given location. </summary>
         private Vector2 ClosestVertex(Vector2 location)
         {
-            return ClosestVertex(location, false);
-        }
 
-        private Vector2 ClosestVertex(Vector2 location, bool withoutLighthouse)
-        {
-            //find closest vertex. Check if it is occupied. If not, place the guard there.
             var closestVertex2D = LevelPolygon.Vertices.ElementAt(0);
             var minMagnitude = (location - closestVertex2D).magnitude;
 
@@ -88,23 +81,7 @@ namespace ArtGallery
                 var currentMagnitude = (location - vtx2D).magnitude;
 
                 if (currentMagnitude < minMagnitude)
-                {
-                    if (withoutLighthouse)
-                    {
-                        // Check if any of the lighthouses have the same x and y values as
-                        // the closest vertex. If so, return.
-                        if (m_solution.LightHouses.Any(
-                            l => MathUtil.EqualsEps(
-                                     l.Pos.x,
-                                     closestVertex2D.x) &&
-                                 MathUtil.EqualsEps(
-                                     l.Pos.y,
-                                     closestVertex2D.y)))
-                        {
-                            continue;
-                        }
-                    }
-                    
+                {                    
                     minMagnitude = currentMagnitude;
                     closestVertex2D = vtx2D;
                 }
@@ -112,10 +89,23 @@ namespace ArtGallery
 
             return closestVertex2D;
         }
+
+        /// <summary>Check if there is a LightHouse object at a given location.</summary>
+        private bool LighthouseExists(Vector2 location)
+        {
+            bool lighthouseExists = m_solution.LightHouses.Any(
+                l => MathUtil.EqualsEps(
+                         l.Pos.x,
+                         location.x) &&
+                     MathUtil.EqualsEps(
+                         l.Pos.y,
+                         location.y));
+            return lighthouseExists;
+        }
+
         /// <summary>Handle a click on the island mesh.</summary>
         public override void HandleIslandClick()
         {
-            // TODO KARINA
             // return if lighthouse was already selected or player can place no more lighthouses
             if (m_selectedLighthouse != null ||
                 m_solution.Count >= m_maxNumberOfLighthouses)
@@ -132,28 +122,21 @@ namespace ArtGallery
 
             var closestVertex2D = ClosestVertex(worldlocation2D);
 
-            // Check if any of the lighthouses have the same x and y values as
-            // the closest vertex. If so, return.
-            if (m_solution.LightHouses.Any(
-                l => MathUtil.EqualsEps(
-                         l.Pos.x,
-                         closestVertex2D.x) &&
-                     MathUtil.EqualsEps(
-                         l.Pos.y,
-                         closestVertex2D.y)))
+            // If lighthouse object exists at the closest vertex, return
+            if (LighthouseExists(closestVertex2D))
             {
                 return;
             }
+            // There is no lighthouse  at the closest vertex
 
             Vector3 closestVertex = closestVertex2D;
             closestVertex.z = -2f;
+            
             // create a new lighthouse from prefab
             var go = Instantiate(
                 m_lighthousePrefab,
                 closestVertex,
                 Quaternion.identity) as GameObject;
-
-           
 
             // add lighthouse to art gallery solution
             m_solution.AddLighthouse(go);
