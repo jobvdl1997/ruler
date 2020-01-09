@@ -9,7 +9,7 @@ namespace Util.DataStructures.BST
     /// Generic interface for a binary search tree (BST).
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IBST<T> where T : IComparable<T>, IEquatable<T>
+    public interface IBST<T> : IEnumerable<T> where T : IComparable<T>, IEquatable<T>
     {
         /// <summary>
         /// Check whether the tree contains the given data value.
@@ -83,7 +83,5 @@ namespace Util.DataStructures.BST
         /// Clears the tree of all nodes.
         /// </summary>
         void Clear();
-
-        IEnumerable<T> Iterator();
     }
 }

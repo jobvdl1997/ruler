@@ -161,11 +161,18 @@ namespace Util.Algorithms.Polygon
         private void HandleEvent(IBST<ISweepEvent<StatusItem>> events, IBST<StatusItem> status,
             ISweepEvent<StatusItem> sweepEvent)
         {
+            foreach (var ss in events)
+            {
+                Debug.Log(ss.ToString());
+            }
+            
             var ev = sweepEvent as SweepEvent;
             if (ev == null)
             {
                 throw new ArgumentException("sweepEvent is not a SweepEvent");
             }
+
+            Debug.Log(string.Format("Handling event {0}, {1}", ev, events.Count));
 
             // Optimization 2
             if ((Operation == OperationType.Intersection && ev.Pos.x > MinXMax) ||
@@ -306,9 +313,12 @@ namespace Util.Algorithms.Polygon
             {
                 return 0; // no intersection
             }
+            
+            Debug.Log(string.Format("Number of intersections = {0} {1} {2} {3} {4}", nIntersections, VT(ev1.Pos), VT(ev2.Pos), VT(ev1.OtherEvent.Pos), VT(ev2.OtherEvent.Pos)));
 
-            if (nIntersections == 1 && (ev1.Pos == ev2.Pos || ev1.OtherEvent.Pos == ev2.OtherEvent.Pos))
+            if (nIntersections == 1 && (MathUtil.EqualsEps(ev1.Pos, ev2.Pos) || MathUtil.EqualsEps(ev1.OtherEvent.Pos, ev2.OtherEvent.Pos)))
             {
+                Debug.Log("skipping");
                 return 0; // the line segments intersect at an endpoint of both line segments
             }
 
@@ -322,14 +332,12 @@ namespace Util.Algorithms.Polygon
             // The line segments associated to ev1 and ev2 intersect
             if (nIntersections == 1)
             {
-                if (ev1.Pos != ip1 && ev1.OtherEvent.Pos != ip1
-                ) // If the intersection point is not an endpoint of ev1.Segment
+                if (!MathUtil.EqualsEps(ev1.Pos, ip1) && !MathUtil.EqualsEps(ev1.OtherEvent.Pos, ip1)) // If the intersection point is not an endpoint of ev1.Segment
                 {
                     DivideSegment(ev1, ip1, events);
                 }
 
-                if (ev2.Pos != ip1 && ev2.OtherEvent.Pos != ip1
-                ) // If the intersection point is not an endpoint of ev2.Segment
+                if (!MathUtil.EqualsEps(ev2.Pos, ip1) && !MathUtil.EqualsEps(ev2.OtherEvent.Pos, ip1)) // If the intersection point is not an endpoint of ev2.Segment
                 {
                     DivideSegment(ev2, ip1, events);
                 }
@@ -339,7 +347,7 @@ namespace Util.Algorithms.Polygon
 
             // The line segments associated to ev1 and ev2 overlap
             var sortedEvents = new List<SweepEvent>();
-            if (ev1.Pos == ev2.Pos)
+            if (MathUtil.EqualsEps(ev1.Pos, ev2.Pos))
             {
                 sortedEvents.Add(null);
             }
@@ -354,7 +362,7 @@ namespace Util.Algorithms.Polygon
                 sortedEvents.Add(ev2);
             }
 
-            if (ev1.OtherEvent.Pos == ev2.OtherEvent.Pos)
+            if (MathUtil.EqualsEps(ev1.OtherEvent.Pos, ev2.OtherEvent.Pos))
             {
                 sortedEvents.Add(null);
             }
@@ -543,9 +551,13 @@ namespace Util.Algorithms.Polygon
             // "Left event" of the "right line segment" resulting from dividing ev.Segment
             var l = new SweepEvent(pos, true, ev.OtherEvent, ev.PolygonType);
 
+            Debug.Log(string.Format("Dividing segment: le = {0}, le.otherEvent = {1}, r = {2}, l = {3}", ev,
+                ev.OtherEvent, r, l));
+
             if (SweepEvent.Compare(l, ev.OtherEvent)
             ) // Avoid a rounding error. The left event would be processed after the right event
             {
+                Debug.Log("Oops");
                 ev.OtherEvent.IsStart = true;
                 l.IsStart = false;
             }
@@ -554,6 +566,7 @@ namespace Util.Algorithms.Polygon
             ) // Avoid a rounding error. The left event would be processed after the right event
             {
                 // TODO: This
+                Debug.Log("Oops2");
             }
 
             ev.OtherEvent.OtherEvent = l;
@@ -635,7 +648,7 @@ namespace Util.Algorithms.Polygon
                 var pos = i;
                 var initial = resultEvents[i].Pos;
                 contour.AddVertex(initial);
-                while (resultEvents[pos].OtherEvent.Pos != initial)
+                while (!MathUtil.EqualsEps(resultEvents[pos].OtherEvent.Pos, initial))
                 {
                     processed[pos] = true;
                     if (resultEvents[pos].IsStart)
@@ -667,7 +680,7 @@ namespace Util.Algorithms.Polygon
         private int NextPos(int pos, List<SweepEvent> resultEvents, List<bool> processed)
         {
             var newPos = pos + 1;
-            while (newPos < resultEvents.Count && resultEvents[newPos].Pos == resultEvents[pos].Pos)
+            while (newPos < resultEvents.Count && MathUtil.EqualsEps(resultEvents[newPos].Pos, resultEvents[pos].Pos))
             {
                 if (!processed[newPos])
                 {
@@ -696,6 +709,9 @@ namespace Util.Algorithms.Polygon
                 OtherEvent = otherEvent;
                 PolygonType = polygonType;
                 EdgeType = edgeType;
+
+                InOut = true;
+                OtherInOut = true;
             }
 
             // Point associated with the event
@@ -878,7 +894,7 @@ namespace Util.Algorithms.Polygon
                 {
                     // Segments are not collinear
                     // If they share their left endpoint use the right endpoint to sort
-                    if (le1.Pos == le2.Pos)
+                    if (MathUtil.EqualsEps(le1.Pos, le2.Pos))
                     {
                         return le1.Below(le2.OtherEvent.Pos);
                     }
@@ -906,7 +922,7 @@ namespace Util.Algorithms.Polygon
                 }
 
                 // Just a consistent criterion is used
-                if (le1.Pos == le2.Pos)
+                if (MathUtil.EqualsEps(le1.Pos, le2.Pos))
                 {
                     // TODO: this?
                     // return SweepEvent.CompareTo(other.SweepEvent);
@@ -924,12 +940,10 @@ namespace Util.Algorithms.Polygon
             public override string ToString()
             {
                 return string.Format(
-                    "({0}) ({1}) S:[{2} - {3})] ({4}) ({5}) ({6}) otherInOut: ({7})",
-                    Pos, IsStart ? "left" : "right", Segment.Min, Segment.Max,
+                    "{0} ({1}) S:[{2} - {3}] ({4}) ({5})",
+                    VT(Pos), IsStart ? "left" : "right", VT(Segment.Min), VT(Segment.Max),
                     PolygonType.ToString().ToUpper(),
-                    EdgeType.ToString().ToUpper(),
-                    InOut ? "inOut" : "outIn",
-                    OtherInOut ? "inOut" : "outIn"
+                    EdgeType.ToString().ToUpper()
                 );
             }
         }
@@ -979,6 +993,11 @@ namespace Util.Algorithms.Polygon
             Union,
             Difference,
             Xor
+        }
+        
+        private static string VT(Vector2 v)
+        {
+            return string.Format("({0:N9},{1:N9})", v.x, v.y);
         }
     }
 }

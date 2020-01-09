@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -575,12 +576,17 @@ namespace Util.DataStructures.BST
             }
         }
 
-        public IEnumerable<T> Iterator()
+        public IEnumerator<T> GetEnumerator()
         {
             var result = new List<T>();
             IterateNodes(m_Root, result);
             result.Sort();
-            return result;
+            return result.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         private void IterateNodes(Node t, List<T> list)

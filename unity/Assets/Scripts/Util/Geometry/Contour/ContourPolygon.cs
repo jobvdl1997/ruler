@@ -129,7 +129,7 @@ namespace Util.Geometry.Contour
                 result.AppendFormat("{0}\n", VertexCount);
                 foreach (var point in contour.Vertices)
                 {
-                    result.AppendFormat("\t{0} {1}\n", point.x, point.y);
+                    result.AppendFormat("\t{0:N18} {1:N18}\n", point.x, point.y);
                 }
             }
 
