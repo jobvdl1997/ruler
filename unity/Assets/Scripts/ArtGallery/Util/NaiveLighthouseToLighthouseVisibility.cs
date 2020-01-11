@@ -206,21 +206,24 @@ namespace ArtGallery
             List<Vector2> vertexes,
             Polygon2D polygon)
         {
+            bool allGuarded = true;
             // For each of the vertexes check if they are visible to at least
             // one other vertex
             foreach (Vector2 vertex1 in vertexes)
             {
+                Debug.Log(vertex1);
                 var otherVertexes = vertexes.Where(i => i != vertex1).ToList();
 
                 // If the vertex cannot be seen by one other vertex return 
                 if (!VisibleToOtherVertex(vertex1, otherVertexes, polygon))
                 {
-                    return false;
+                    Debug.Log(vertex1 + " not guarded");
+                    allGuarded = false;
                 }
             }
 
             // if every vertex can be seen by one other vertex return true
-            return true;
+            return allGuarded;
         }
 
         /// <summary>
