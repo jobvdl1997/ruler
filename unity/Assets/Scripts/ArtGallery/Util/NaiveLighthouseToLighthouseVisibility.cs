@@ -206,6 +206,14 @@ namespace ArtGallery
             List<Vector2> vertexes,
             Polygon2D polygon)
         {
+            // Remove all previous unguarded sprites first
+            Debug.Log("Removing old unguarded sprites");
+            var unguardedSprites = GameObject.FindGameObjectsWithTag("UnGuarded");
+
+            for (var i = 0; i < unguardedSprites.Length; i++) {
+                GameObject.Destroy(unguardedSprites[i]);
+            }
+
             bool allGuarded = true;
             // For each of the vertexes check if they are visible to at least
             // one other vertex
@@ -218,6 +226,8 @@ namespace ArtGallery
                 if (!VisibleToOtherVertex(vertex1, otherVertexes, polygon))
                 {
                     Debug.Log(vertex1 + " not guarded");
+                    var unguardedIndicator = Resources.Load("Prefabs/NotGuarded") as GameObject;
+                    GameObject.Instantiate(unguardedIndicator, new Vector2(vertex1.x, vertex1.y), Quaternion.identity);
                     allGuarded = false;
                 }
             }
