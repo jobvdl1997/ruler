@@ -19,7 +19,10 @@ namespace ArtGallery.Tests
         private readonly Polygon2D arrowPoly;
         private readonly Polygon2D diamondPoly;
         private readonly Polygon2D LShape;
-        private ILighthouseToLightHouseVisibility lighthouseToLightHouseVisibility = new SmartLighthouseToLighthouseVisibility();
+
+        private ILighthouseToLightHouseVisibility
+            lighthouseToLightHouseVisibility =
+                new SmartLighthouseToLighthouseVisibility();
 
         public SmartLighthouseToLighthouseVisibilityTest()
         {
@@ -487,9 +490,10 @@ namespace ArtGallery.Tests
         {
             var vertex = arrowPoly.Vertices.ElementAt(0);
 
-            var actual = new SmartLighthouseToLighthouseVisibility().VisibleVertices(
-                arrowPoly,
-                vertex);
+            var actual =
+                new SmartLighthouseToLighthouseVisibility().VisibleVertices(
+                    arrowPoly,
+                    vertex);
 
             Assert.AreEqual(arrowPoly.VertexCount - 1, actual.Count);
         }
@@ -499,9 +503,10 @@ namespace ArtGallery.Tests
         {
             var vertex = LShape.Vertices.First();
 
-            var actual = new SmartLighthouseToLighthouseVisibility().VisibleVertices(
-                LShape,
-                vertex);
+            var actual =
+                new SmartLighthouseToLighthouseVisibility().VisibleVertices(
+                    LShape,
+                    vertex);
 
             Assert.AreEqual(LShape.VertexCount - 1, actual.Count);
         }
@@ -529,18 +534,20 @@ namespace ArtGallery.Tests
             int visiblevertices = 5;
             var vertex = polygon.Vertices.First();
 
-            var actual = new SmartLighthouseToLighthouseVisibility().VisibleVertices(
-                polygon,
-                vertex);
+            var actual =
+                new SmartLighthouseToLighthouseVisibility().VisibleVertices(
+                    polygon,
+                    vertex);
 
             Assert.AreEqual(visiblevertices, actual.Count);
 
             visiblevertices = polygon.Vertices.Count;
             vertex = polygon.Vertices.ElementAt(1);
 
-            actual = new SmartLighthouseToLighthouseVisibility().VisibleVertices(
-                polygon,
-                vertex);
+            actual =
+                new SmartLighthouseToLighthouseVisibility().VisibleVertices(
+                    polygon,
+                    vertex);
 
             Assert.AreEqual(visiblevertices, actual.Count);
         }
@@ -563,9 +570,10 @@ namespace ArtGallery.Tests
             int visiblevertices = 4;
             var vertex = polygon.Vertices.First();
 
-            var actual = new SmartLighthouseToLighthouseVisibility().VisibleVertices(
-                polygon,
-                vertex);
+            var actual =
+                new SmartLighthouseToLighthouseVisibility().VisibleVertices(
+                    polygon,
+                    vertex);
 
             Assert.AreEqual(visiblevertices, actual.Count);
         }
@@ -576,35 +584,33 @@ namespace ArtGallery.Tests
             var polygon = new Polygon2D(
                 new List<Vector2>()
                 {
-                    new Vector2(0, 0), // O
-                    new Vector2(0, 4), // O
+                    new Vector2(0, 0),
+                    new Vector2(0, 4),
                     new Vector2(2, 8),
-                    new Vector2(4, 4), // O
+                    new Vector2(4, 4),
                     new Vector2(4, 6),
                     new Vector2(5, 5),
                     new Vector2(6, 6),
-                    new Vector2(6, 4), // O
-                    new Vector2(8, 4), // O
-                    new Vector2(10, 4), // O
-                    new Vector2(10, 2), // O
-                    new Vector2(8, 2), // O
-                    new Vector2(6, 2), // O
-                    new Vector2(4, 2), // O
-                    new Vector2(2, 2), // O
-                    new Vector2(2, 0) // O
+                    new Vector2(6, 4),
+                    new Vector2(8, 4),
+                    new Vector2(10, 4),
+                    new Vector2(10, 2),
+                    new Vector2(8, 2),
+                    new Vector2(6, 2),
+                    new Vector2(4, 2),
+                    new Vector2(2, 2),
+                    new Vector2(2, 0)
                 });
-           
+
             int visiblevertices = 13;
             var vertex = polygon.Vertices.ElementAt(1);
 
-            var actual = new SmartLighthouseToLighthouseVisibility().VisibleVertices(
-                polygon,
-                vertex);
+            var actual =
+                new SmartLighthouseToLighthouseVisibility().VisibleVertices(
+                    polygon,
+                    vertex);
 
             Assert.AreEqual(visiblevertices, actual.Count);
-
-            
         }
-
     }
 }

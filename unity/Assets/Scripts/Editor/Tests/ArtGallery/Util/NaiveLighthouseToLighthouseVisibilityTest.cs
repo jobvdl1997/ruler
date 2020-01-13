@@ -19,7 +19,10 @@ namespace ArtGallery.Tests
         private readonly Polygon2D arrowPoly;
         private readonly Polygon2D diamondPoly;
         private readonly Polygon2D LShape;
-        private ILighthouseToLightHouseVisibility lighthouseToLightHouseVisibility = new NaiveLighthouseToLighthouseVisibility();
+
+        private ILighthouseToLightHouseVisibility
+            lighthouseToLightHouseVisibility =
+                new NaiveLighthouseToLighthouseVisibility();
 
         public NaiveLighthouseToLighthouseVisibilityTest()
         {
