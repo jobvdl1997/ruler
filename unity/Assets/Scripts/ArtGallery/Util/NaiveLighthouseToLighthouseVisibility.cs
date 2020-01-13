@@ -52,12 +52,12 @@ namespace ArtGallery
         /// <inheritdoc />
         public bool VisibleToOtherVertex(
             Vector2 vertex,
-            List<Vector2> othervertices,
+            List<Vector2> otherVertices,
             Polygon2D polygon)
         {
             // Calculate all the visible vertices
             int numberOfVisiblevertices =
-                VisibleToOtherVertices(vertex, othervertices, polygon)
+                VisibleToOtherVertices(vertex, otherVertices, polygon)
                     .Count;
 
             // Check if there is at least 1 vertex visible

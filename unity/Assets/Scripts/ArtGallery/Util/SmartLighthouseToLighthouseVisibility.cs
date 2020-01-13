@@ -43,12 +43,12 @@ namespace ArtGallery
         /// <inheritdoc />
         public bool VisibleToOtherVertex(
             Vector2 vertex,
-            List<Vector2> othervertices,
+            List<Vector2> otherVertices,
             Polygon2D polygon)
         {
             //For each of the other vertices check if at least one is
             // visible. If so, return true else return false.
-            foreach (Vector2 otherVertece in othervertices)
+            foreach (Vector2 otherVertece in otherVertices)
             {
                 if (VisibleToOtherVertex(vertex, otherVertece, polygon))
                 {
