@@ -22,28 +22,28 @@ namespace Assets.Scripts.ArtGallery.Util
         ///     Checks if the vertex
         ///     <paramref name="vertex" />
         ///     can be seen by any of the vertices in
-        ///     <paramref name="otherVerteces" />
+        ///     <paramref name="othervertices" />
         ///     in the context of
         ///     <paramref name="polygon" />
         /// </summary>
         /// <param name="vertex">
         ///     The vertex that needs to be seen by any of the vertices in
-        ///     <paramref name="otherVerteces" />
+        ///     <paramref name="othervertices" />
         /// </param>
-        /// <param name="otherVerteces">
+        /// <param name="othervertices">
         ///     The vertices that need to see
         ///     <paramref name="vertex" />
         /// </param>
         /// <param name="polygon">The polygon in which the vertices exist.</param>
         /// <returns>
         ///     Whether one of the vertices in
-        ///     <paramref name="otherVerteces" />
+        ///     <paramref name="othervertices" />
         ///     can seen
         ///     <paramref name="vertex" />
         /// </returns>
         bool VisibleToOtherVertex(
             Vector2 vertex,
-            List<Vector2> otherVerteces,
+            List<Vector2> othervertices,
             Polygon2D polygon);
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Assets.Scripts.ArtGallery.Util
         ///     Checks if the vertex
         ///     <paramref name="vertex" />
         ///     can be seen by any of the vertices in
-        ///     <paramref name="otherVerteces" />
+        ///     <paramref name="othervertices" />
         ///     in the context of
         ///     <paramref name="polygon" />
         ///     and creates a collection of vertices that can see
@@ -81,16 +81,16 @@ namespace Assets.Scripts.ArtGallery.Util
         /// </summary>
         /// <param name="vertex">
         ///     The vertex that needs to be seen by any of the vertices in
-        ///     <paramref name="otherVerteces" />
+        ///     <paramref name="othervertices" />
         /// </param>
-        /// <param name="otherVerteces">
+        /// <param name="othervertices">
         ///     The vertices that need to see
         ///     <paramref name="vertex" />
         /// </param>
         /// <param name="polygon">The polygon in which the vertices exist.</param>
         /// <returns>
         ///     A collection of all vertices in
-        ///     <paramref name="otherVerteces" />
+        ///     <paramref name="othervertices" />
         ///     that can see the vertex
         ///     <paramref name="vertex" />
         /// </returns>
