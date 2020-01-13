@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Util.Geometry.Polygon;
-
-namespace Util.Algorithms.Polygon
+﻿namespace Util.Algorithms.Polygon
 {
-    //Will be implemented by Koen and Gijs
+    using System.Collections.Generic;
+    using System.Linq;
+    using Util.Geometry.Polygon;
 
     /// <summary>
     /// Implements the <see cref="Union"/> method by using a naive approach
@@ -14,9 +10,22 @@ namespace Util.Algorithms.Polygon
     public class UnionNaive : IUnion
     {
         /// <inheritdoc />
-        public IPolygon2D Union(ICollection<IPolygon2D> polygons)
+        public IPolygon2D Union(ICollection<Polygon2D> polygons)
         {
-            throw new NotImplementedException();
+            if (polygons.Count <= 0) return new MultiPolygon2D();
+
+            // create multi polygon of polygons
+            var visiblePolygon = new MultiPolygon2D(polygons.First());
+
+            // add all polygons, cutting out the overlap
+            foreach (Polygon2D polygon in polygons.Skip(1))
+            {
+                visiblePolygon = Clipper.CutOut(visiblePolygon, polygon);
+                visiblePolygon.AddPolygon(polygon);
+            }
+
+            // return complete polygon
+            return visiblePolygon;
         }
     }
 }
