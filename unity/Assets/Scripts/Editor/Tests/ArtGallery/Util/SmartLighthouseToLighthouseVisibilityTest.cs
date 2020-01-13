@@ -14,14 +14,14 @@ namespace ArtGallery.Tests
     using Util.Algorithms.Polygon;
 
     [TestFixture]
-    public class RotateLineLighthouseToLighthouseVisibilityTest
+    public class SmartLighthouseToLighthouseVisibilityTest
     {
         private readonly Polygon2D arrowPoly;
         private readonly Polygon2D diamondPoly;
         private readonly Polygon2D LShape;
-        private ILighthouseToLightHouseVisibility lighthouseToLightHouseVisibility = new RotateLineLighthouseToLighthouseVisibility();
+        private ILighthouseToLightHouseVisibility lighthouseToLightHouseVisibility = new SmartLighthouseToLighthouseVisibility();
 
-        public RotateLineLighthouseToLighthouseVisibilityTest()
+        public SmartLighthouseToLighthouseVisibilityTest()
         {
             var m_topVertex = new Vector2(1, 1);
             var m_botVertex = new Vector2(0, -1);
@@ -474,7 +474,7 @@ namespace ArtGallery.Tests
             foreach (var vertex in diamondPoly.Vertices)
             {
                 var actual =
-                    new RotateLineLighthouseToLighthouseVisibility().VisibleVertices(
+                    new SmartLighthouseToLighthouseVisibility().VisibleVertices(
                         diamondPoly,
                         vertex);
 
@@ -487,7 +487,7 @@ namespace ArtGallery.Tests
         {
             var vertex = arrowPoly.Vertices.ElementAt(0);
 
-            var actual = new RotateLineLighthouseToLighthouseVisibility().VisibleVertices(
+            var actual = new SmartLighthouseToLighthouseVisibility().VisibleVertices(
                 arrowPoly,
                 vertex);
 
@@ -499,7 +499,7 @@ namespace ArtGallery.Tests
         {
             var vertex = LShape.Vertices.First();
 
-            var actual = new RotateLineLighthouseToLighthouseVisibility().VisibleVertices(
+            var actual = new SmartLighthouseToLighthouseVisibility().VisibleVertices(
                 LShape,
                 vertex);
 
@@ -529,7 +529,7 @@ namespace ArtGallery.Tests
             int visiblevertices = 5;
             var vertex = polygon.Vertices.First();
 
-            var actual = new RotateLineLighthouseToLighthouseVisibility().VisibleVertices(
+            var actual = new SmartLighthouseToLighthouseVisibility().VisibleVertices(
                 polygon,
                 vertex);
 
@@ -538,7 +538,7 @@ namespace ArtGallery.Tests
             visiblevertices = polygon.Vertices.Count;
             vertex = polygon.Vertices.ElementAt(1);
 
-            actual = new RotateLineLighthouseToLighthouseVisibility().VisibleVertices(
+            actual = new SmartLighthouseToLighthouseVisibility().VisibleVertices(
                 polygon,
                 vertex);
 
@@ -563,7 +563,7 @@ namespace ArtGallery.Tests
             int visiblevertices = 4;
             var vertex = polygon.Vertices.First();
 
-            var actual = new RotateLineLighthouseToLighthouseVisibility().VisibleVertices(
+            var actual = new SmartLighthouseToLighthouseVisibility().VisibleVertices(
                 polygon,
                 vertex);
 
@@ -597,7 +597,7 @@ namespace ArtGallery.Tests
             int visiblevertices = 13;
             var vertex = polygon.Vertices.ElementAt(1);
 
-            var actual = new RotateLineLighthouseToLighthouseVisibility().VisibleVertices(
+            var actual = new SmartLighthouseToLighthouseVisibility().VisibleVertices(
                 polygon,
                 vertex);
 

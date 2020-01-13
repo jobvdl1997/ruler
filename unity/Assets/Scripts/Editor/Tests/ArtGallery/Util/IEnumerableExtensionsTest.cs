@@ -95,6 +95,7 @@
             var actual = input.StartAt(start).ToList();
 
             Assert.AreEqual(start, actual.First());
+            Assert.AreEqual(expectedList.Count, actual.Count);
 
             for (int i = 0; i < expectedList.Count; i++)
             {

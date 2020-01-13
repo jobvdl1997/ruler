@@ -11,7 +11,7 @@ using Util.Math;
 namespace ArtGallery
 {
     public class
-        RotateLineLighthouseToLighthouseVisibility :
+        SmartLighthouseToLighthouseVisibility :
             ILighthouseToLightHouseVisibility
     {
         /// <summary>Checks if tho vertices are visible to each other</summary>
