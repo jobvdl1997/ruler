@@ -18,7 +18,7 @@ namespace ArtGallery
         /// <param name="vertex1"> The first vertex </param>
         /// <param name="vertex2"> The second vertex </param>
         /// <param name="polygon"> The polygon containing the vertices</param>
-        /// <returns>Whether the vertexes can see each other</returns>
+        /// <returns>Whether the vertices can see each other</returns>
         public bool VisibleToOtherVertex(
             Vector2 vertex1,
             Vector2 vertex2,
@@ -61,30 +61,30 @@ namespace ArtGallery
 
 
         /// <summary>
-        ///     Checks if the vertexes in
-        ///     <paramref name="vertexes" />
-        ///     can be seen by any of the vertexes in
-        ///     <paramref name="vertexes" />
+        ///     Checks if the vertices in
+        ///     <paramref name="vertices" />
+        ///     can be seen by any of the vertices in
+        ///     <paramref name="vertices" />
         ///     in the context of
         ///     <paramref name="polygon" />
         /// </summary>
-        /// <param name="vertexes">
-        ///     The collection of vertexes that need to be seen by at least
+        /// <param name="vertices">
+        ///     The collection of vertices that need to be seen by at least
         ///     one other vertex in the same collection
         /// </param>
-        /// <param name="polygon">The polygon in which the vertexes exist.</param>
+        /// <param name="polygon">The polygon in which the vertices exist.</param>
         /// <returns>
-        ///     Whether all of the vertexes in
-        ///     <paramref name="vertexes" />
+        ///     Whether all of the vertices in
+        ///     <paramref name="vertices" />
         ///     can seen by one other vertex in
-        ///     <paramref name="vertexes" />
+        ///     <paramref name="vertices" />
         /// </returns>
         public bool VisibleToOtherVertex(
-            List<Vector2> vertexes,
+            List<Vector2> vertices,
             Polygon2D polygon)
         {
             // Create a dictionary for all vertices and their visible vertices.
-            var dic = VisibleToOtherVertices(vertexes, polygon);
+            var dic = VisibleToOtherVertices(vertices, polygon);
 
             // loop over the list and check if all vertices have at least one
             // entry meaning they are seen by at least one other vertex.
@@ -102,44 +102,44 @@ namespace ArtGallery
 
         /// <summary>
         ///     Creates a dictionary containing an entry for each vertex in
-        ///     <paramref name="vertexes" />
-        ///     and a corresponding value with all the vertexes in
-        ///     <paramref name="vertexes" />
+        ///     <paramref name="vertices" />
+        ///     and a corresponding value with all the vertices in
+        ///     <paramref name="vertices" />
         ///     each vertex can see
         /// </summary>
-        /// <param name="vertexes">
-        ///     The collection of vertexes for which visibility needs to be
+        /// <param name="vertices">
+        ///     The collection of vertices for which visibility needs to be
         ///     calculated
         /// </param>
-        /// <param name="polygon">The polygon in which the vertexes exist.</param>
+        /// <param name="polygon">The polygon in which the vertices exist.</param>
         /// <returns>
         ///     A dictionary containing for each vertex the other visible
-        ///     vertexes
+        ///     vertices
         /// </returns>
         public IDictionary<Vector2, ICollection<Vector2>>
             VisibleToOtherVertices(
-                List<Vector2> vertexes,
+                List<Vector2> vertices,
                 Polygon2D polygon)
         {
             // Create dictionary to store the result
             IDictionary<Vector2, ICollection<Vector2>> result =
                 new Dictionary<Vector2, ICollection<Vector2>>();
 
-            // Iterate over all the vertexes and calculate for each vertex the
-            // other vertexes it can see.
-            foreach (Vector2 vertex1 in vertexes)
+            // Iterate over all the vertices and calculate for each vertex the
+            // other vertices it can see.
+            foreach (Vector2 vertex1 in vertices)
             {
-                // Select all vertexes except the current vertex 
-                var otherVertexes = vertexes.Where(i => i != vertex1).ToList();
+                // Select all vertices except the current vertex 
+                var othervertices = vertices.Where(i => i != vertex1).ToList();
 
-                // Calculate the visible vertexes 
+                // Calculate the visible vertices 
                 var visibleVertices = VisibleToOtherVertices(
                     vertex1,
-                    otherVertexes,
+                    othervertices,
                     polygon);
 
                 // Add a dictionary item. The key is the current vertex and
-                // the value is the vertexes it can see.
+                // the value is the vertices it can see.
                 result.Add(
                     vertex1,
                     visibleVertices);
@@ -152,24 +152,24 @@ namespace ArtGallery
         /// <summary>
         ///     Checks if the vertex
         ///     <paramref name="vertex" />
-        ///     can be seen by any of the vertexes in
+        ///     can be seen by any of the vertices in
         ///     <paramref name="otherVerteces" />
         ///     in the context of
         ///     <paramref name="polygon" />
-        ///     and creates a collection of vertexes that can see
+        ///     and creates a collection of vertices that can see
         ///     <paramref name="vertex" />
         /// </summary>
         /// <param name="vertex">
-        ///     The vertex that needs to be seen by any of the vertexes in
+        ///     The vertex that needs to be seen by any of the vertices in
         ///     <paramref name="otherVerteces" />
         /// </param>
         /// <param name="otherVerteces">
-        ///     The vertexes that need to see
+        ///     The vertices that need to see
         ///     <paramref name="vertex" />
         /// </param>
-        /// <param name="polygon">The polygon in which the vertexes exist.</param>
+        /// <param name="polygon">The polygon in which the vertices exist.</param>
         /// <returns>
-        ///     A collection of all vertexes in
+        ///     A collection of all vertices in
         ///     <paramref name="otherVerteces" />
         ///     that can see the vertex
         ///     <paramref name="vertex" />
@@ -192,7 +192,7 @@ namespace ArtGallery
                 dic.Add(vector2, true);
             }
 
-            // check if the vertex can be seen by any of the other vertexes
+            // check if the vertex can be seen by any of the other vertices
             foreach (Vector2 vertex2 in otherVerteces)
             {
                 // If the vertex can be seen by one other vertex add it to the 
@@ -203,7 +203,7 @@ namespace ArtGallery
                 }
             }
 
-            // Return the list with all vertexes that can see the vertex
+            // Return the list with all vertices that can see the vertex
             return result;
         }
 
@@ -235,22 +235,22 @@ namespace ArtGallery
                 vision.Reverse();
             }
 
-            List<Vector2> polyVertexes = polygon.Vertices.ToList();
+            List<Vector2> polyvertices = polygon.Vertices.ToList();
 
-            List<Vector2> visibilityVertexes = vision.Vertices.ToList();
+            List<Vector2> visibilityvertices = vision.Vertices.ToList();
 
-            polyVertexes = polyVertexes.StartAt(vertex).ToList();
-            visibilityVertexes = visibilityVertexes.StartAt(vertex).ToList();
+            polyvertices = polyvertices.StartAt(vertex).ToList();
+            visibilityvertices = visibilityvertices.StartAt(vertex).ToList();
 
-            // move all vertexes such that the vertex vertex is at the origin
+            // move all vertices such that the vertex vertex is at the origin
             // and transform them to PolarPoint2D
 
-            var polyPolarPoints = polyVertexes
+            var polyPolarPoints = polyvertices
                                   .Select(v => v - vertex)
                                   .Select(x => new PolarPoint2D(x))
                                   .ToList();
 
-            var visPolarPoints = visibilityVertexes
+            var visPolarPoints = visibilityvertices
                                  .Select(v => v - vertex)
                                  .Select(x => new PolarPoint2D(x))
                                  .ToList();
@@ -278,19 +278,19 @@ namespace ArtGallery
             bool done = false;
             int polyIndex = 0;
             int visIndex = 0;
-            int polyCount = polyVertexes.Count;
-            int visCount = visibilityVertexes.Count;
+            int polyCount = polyvertices.Count;
+            int visCount = visibilityvertices.Count;
 
             while (!done)
             {
-                var polyCurrent = polyVertexes[polyIndex];
-                var visCurrent = visibilityVertexes[visIndex];
-                var polyNext = polyVertexes[(polyIndex + 1) % polyCount];
+                var polyCurrent = polyvertices[polyIndex];
+                var visCurrent = visibilityvertices[visIndex];
+                var polyNext = polyvertices[(polyIndex + 1) % polyCount];
 
                 var polyLast =
-                    polyVertexes[(polyIndex - 1 + polyCount) % polyCount];
+                    polyvertices[(polyIndex - 1 + polyCount) % polyCount];
 
-                var visNext = visibilityVertexes[(visIndex + 1) % visCount];
+                var visNext = visibilityvertices[(visIndex + 1) % visCount];
                 var polyLineSegment = new LineSegment(polyCurrent, polyNext);
 
                 var polyLineSegmentLast =
@@ -309,7 +309,7 @@ namespace ArtGallery
                 {
                     //If the current poly vertex is equal to the next vis vertex
                     // We know that we can increase the vis index as there cannot
-                    // be any more poly vertexes on the line between the current
+                    // be any more poly vertices on the line between the current
                     // and the next vis vertex
                     // We do not add the current poly vertex to the list as 
                     // this will be done in the next iteration
@@ -318,7 +318,7 @@ namespace ArtGallery
                 else if (visLineSegment.IsOnSegment(polyCurrent))
                 {
                     // If the current poly vertex is on the line segment between
-                    // the current and the next vis vertexes add it to the list
+                    // the current and the next vis vertices add it to the list
                     // and increase the counter of the polyIndex
                     result.Add(polyCurrent);
                     polyIndex++;
@@ -333,7 +333,7 @@ namespace ArtGallery
                 {
                     // if the next vis vertex is on the previous poly
                     // lineSegment then no more points can lie on the 
-                    // lineSegment of the current and next vis vertexes.
+                    // lineSegment of the current and next vis vertices.
                     visIndex++;
                 }
                 else
@@ -343,16 +343,16 @@ namespace ArtGallery
                     polyIndex++;
                 }
 
-//                if (!(polyIndex < polyVertexes.Count) && !(visIndex < visibilityVertexes.Count))
+//                if (!(polyIndex < polyvertices.Count) && !(visIndex < visibilityvertices.Count))
 //                {
 //                    done = true;
 //                }
-                if (!(polyIndex < polyVertexes.Count))
+                if (!(polyIndex < polyvertices.Count))
                 {
                     done = true;
                 }
 
-                if (!(visIndex < visibilityVertexes.Count))
+                if (!(visIndex < visibilityvertices.Count))
                 {
                     done = true;
                 }

@@ -32,7 +32,7 @@ namespace ArtGallery
 
                 if (intersection != null)
                 {
-                    // Check if the two lines are parallel. We allow two vertexes
+                    // Check if the two lines are parallel. We allow two vertices
                     // to see each other if they they are along a straight line
                     if (!seg1.IsParallel(lineSegment))
                     {
@@ -55,28 +55,28 @@ namespace ArtGallery
             List<Vector2> otherVerteces,
             Polygon2D polygon)
         {
-            // Calculate all the visible vertexes
-            int numberOfVisibleVertexes =
+            // Calculate all the visible vertices
+            int numberOfVisiblevertices =
                 VisibleToOtherVertices(vertex, otherVerteces, polygon)
                     .Count;
 
             // Check if there is at least 1 vertex visible
-            return numberOfVisibleVertexes > 0;
+            return numberOfVisiblevertices > 0;
         }
 
         /// <inheritdoc />
         public bool VisibleToOtherVertex(
-            List<Vector2> vertexes,
+            List<Vector2> vertices,
             Polygon2D polygon)
         {
-            // For each of the vertexes check if they are visible to at least
+            // For each of the vertices check if they are visible to at least
             // one other vertex
-            foreach (Vector2 vertex in vertexes)
+            foreach (Vector2 vertex in vertices)
             {
-                var otherVertexes = vertexes.Where(i => i != vertex).ToList();
+                var othervertices = vertices.Where(i => i != vertex).ToList();
 
                 // If the vertex cannot be seen by one other vertex return 
-                if (!VisibleToOtherVertex(vertex, otherVertexes, polygon))
+                if (!VisibleToOtherVertex(vertex, othervertices, polygon))
                 {
                     return false;
                 }
@@ -94,7 +94,7 @@ namespace ArtGallery
         {
             List<Vector2> result = new List<Vector2>();
 
-            // check if the vertex can be seen by any of the other vertexes
+            // check if the vertex can be seen by any of the other vertices
             foreach (Vector2 vertex2 in otherVertices)
             {
                 // If the vertex can be seen by one other vertex add it to the 
@@ -105,7 +105,7 @@ namespace ArtGallery
                 }
             }
 
-            // Return the list with all vertexes that can see the vertex
+            // Return the list with all vertices that can see the vertex
             return result;
         }
 
@@ -119,21 +119,21 @@ namespace ArtGallery
             IDictionary<Vector2, ICollection<Vector2>> result =
                 new Dictionary<Vector2, ICollection<Vector2>>();
 
-            // Iterate over all the vertexes and calculate for each vertex the
-            // other vertexes it can see.
+            // Iterate over all the vertices and calculate for each vertex the
+            // other vertices it can see.
             foreach (Vector2 vertex in vertices)
             {
-                // Select all vertexes except the current vertex 
-                var otherVertexes = vertices.Where(i => i != vertex).ToList();
+                // Select all vertices except the current vertex 
+                var othervertices = vertices.Where(i => i != vertex).ToList();
 
-                // Calculate the visible vertexes 
+                // Calculate the visible vertices 
                 var visibleVertices = VisibleToOtherVertices(
                     vertex,
-                    otherVertexes,
+                    othervertices,
                     polygon);
 
                 // Add a dictionary item. The key is the current vertex and
-                // the value is the vertexes it can see.
+                // the value is the vertices it can see.
                 result.Add(vertex, visibleVertices);
             }
 

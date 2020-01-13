@@ -195,7 +195,7 @@ namespace ArtGallery.Tests
 
             var vertex1 = new Vector2(0, 0);
 
-            var otherVertexes = new List<Vector2>()
+            var othervertices = new List<Vector2>()
             {
                 new Vector2(10, 2),
                 new Vector2(0, 4)
@@ -204,7 +204,7 @@ namespace ArtGallery.Tests
             bool canSeeEachOther =
                 lighthouseToLightHouseVisibility.VisibleToOtherVertex(
                     vertex1,
-                    otherVertexes,
+                    othervertices,
                     polygon);
 
             Assert.IsTrue(canSeeEachOther);
@@ -232,7 +232,7 @@ namespace ArtGallery.Tests
 
             var vertex1 = new Vector2(0, 0);
 
-            var otherVertexes = new List<Vector2>()
+            var othervertices = new List<Vector2>()
             {
                 new Vector2(10, 2),
                 new Vector2(0, 4)
@@ -241,7 +241,7 @@ namespace ArtGallery.Tests
             bool canSeeEachOther =
                 lighthouseToLightHouseVisibility.VisibleToOtherVertex(
                     vertex1,
-                    otherVertexes,
+                    othervertices,
                     polygon);
 
             Assert.IsTrue(canSeeEachOther);
@@ -268,7 +268,7 @@ namespace ArtGallery.Tests
                     new Vector2(2, 0)
                 });
 
-            var vertexes = new List<Vector2>()
+            var vertices = new List<Vector2>()
             {
                 new Vector2(0, 0),
                 new Vector2(10, 2),
@@ -277,7 +277,7 @@ namespace ArtGallery.Tests
 
             bool canSeeEachOther =
                 lighthouseToLightHouseVisibility.VisibleToOtherVertex(
-                    vertexes,
+                    vertices,
                     polygon);
 
             Assert.IsTrue(canSeeEachOther);
@@ -303,7 +303,7 @@ namespace ArtGallery.Tests
                     new Vector2(2, 0)
                 });
 
-            var vertexes = new List<Vector2>()
+            var vertices = new List<Vector2>()
             {
                 new Vector2(0, 0),
                 new Vector2(10, 2),
@@ -314,14 +314,14 @@ namespace ArtGallery.Tests
 
             bool canSeeEachOther =
                 lighthouseToLightHouseVisibility.VisibleToOtherVertex(
-                    vertexes,
+                    vertices,
                     polygon);
 
             Assert.IsFalse(canSeeEachOther);
         }
 
         [Test]
-        public void VisibleToOtherVertexesTest1()
+        public void VisibleToOtherverticesTest1()
         {
             var m_topVertex = new Vector2(1, 1);
             var m_botVertex = new Vector2(0, -1);
@@ -337,27 +337,27 @@ namespace ArtGallery.Tests
                     m_rightVertex
                 });
 
-            var vertexes = new List<Vector2>()
+            var vertices = new List<Vector2>()
             {
                 m_botVertex
             };
 
-            var visibleVertexes = new List<Vector2>();
+            var visiblevertices = new List<Vector2>();
 
             var vertex = m_topVertex;
 
             var actual =
                 lighthouseToLightHouseVisibility.VisibleToOtherVertices(
                     vertex,
-                    vertexes,
+                    vertices,
                     polygon);
 
-            Assert.AreEqual(visibleVertexes.Count, actual.Count);
+            Assert.AreEqual(visiblevertices.Count, actual.Count);
         }
 
 
         [Test]
-        public void VisibleToOtherVertexesTest2()
+        public void VisibleToOtherverticesTest2()
         {
             var m_topVertex = new Vector2(1, 1);
             var m_botVertex = new Vector2(0, -1);
@@ -373,14 +373,14 @@ namespace ArtGallery.Tests
                     m_rightVertex
                 });
 
-            var vertexes = new List<Vector2>()
+            var vertices = new List<Vector2>()
             {
                 m_farRightVertex,
                 m_botVertex,
                 m_rightVertex
             };
 
-            var visibleVertexes = new List<Vector2>()
+            var visiblevertices = new List<Vector2>()
             {
                 m_farRightVertex,
                 m_rightVertex
@@ -391,14 +391,14 @@ namespace ArtGallery.Tests
             var actual =
                 lighthouseToLightHouseVisibility.VisibleToOtherVertices(
                     vertex,
-                    vertexes,
+                    vertices,
                     polygon);
 
-            Assert.AreEqual(visibleVertexes.Count, actual.Count);
+            Assert.AreEqual(visiblevertices.Count, actual.Count);
         }
 
         [Test]
-        public void VisibleToOtherVertexesTest3()
+        public void VisibleToOtherverticesTest3()
         {
             var m_topVertex = new Vector2(1, 1);
             var m_botVertex = new Vector2(0, -1);
@@ -414,7 +414,7 @@ namespace ArtGallery.Tests
                     m_rightVertex
                 });
 
-            var vertexes = new List<Vector2>()
+            var vertices = new List<Vector2>()
             {
                 m_topVertex,
                 m_botVertex,
@@ -423,7 +423,7 @@ namespace ArtGallery.Tests
 
             var actual =
                 lighthouseToLightHouseVisibility.VisibleToOtherVertices(
-                    vertexes,
+                    vertices,
                     polygon);
 
             Assert.AreEqual(1, actual[m_topVertex].Count);
@@ -432,7 +432,7 @@ namespace ArtGallery.Tests
         }
 
         [Test]
-        public void VisibleToOtherVertexesTest4()
+        public void VisibleToOtherverticesTest4()
         {
             var polygon = new Polygon2D(
                 new List<Vector2>()
@@ -451,7 +451,7 @@ namespace ArtGallery.Tests
                     new Vector2(2, 0)
                 });
 
-            var vertexes = new List<Vector2>()
+            var vertices = new List<Vector2>()
             {
                 new Vector2(0, 0),
                 new Vector2(10, 2),
@@ -460,7 +460,7 @@ namespace ArtGallery.Tests
 
             var actual =
                 lighthouseToLightHouseVisibility.VisibleToOtherVertices(
-                    vertexes,
+                    vertices,
                     polygon);
 
             Assert.AreEqual(0, actual[new Vector2(0, 0)].Count);
@@ -526,23 +526,23 @@ namespace ArtGallery.Tests
                     new Vector2(2, 0)
                 });
 
-            int visibleVertexes = 5;
+            int visiblevertices = 5;
             var vertex = polygon.Vertices.First();
 
             var actual = new RotateLineLighthouseToLighthouseVisibility().VisibleVertices(
                 polygon,
                 vertex);
 
-            Assert.AreEqual(visibleVertexes, actual.Count);
+            Assert.AreEqual(visiblevertices, actual.Count);
 
-            visibleVertexes = polygon.Vertices.Count;
+            visiblevertices = polygon.Vertices.Count;
             vertex = polygon.Vertices.ElementAt(1);
 
             actual = new RotateLineLighthouseToLighthouseVisibility().VisibleVertices(
                 polygon,
                 vertex);
 
-            Assert.AreEqual(visibleVertexes, actual.Count);
+            Assert.AreEqual(visiblevertices, actual.Count);
         }
 
 
@@ -560,14 +560,14 @@ namespace ArtGallery.Tests
                     new Vector2(2, 0)
                 });
 
-            int visibleVertexes = 4;
+            int visiblevertices = 4;
             var vertex = polygon.Vertices.First();
 
             var actual = new RotateLineLighthouseToLighthouseVisibility().VisibleVertices(
                 polygon,
                 vertex);
 
-            Assert.AreEqual(visibleVertexes, actual.Count);
+            Assert.AreEqual(visiblevertices, actual.Count);
         }
 
         [Test]
@@ -594,14 +594,14 @@ namespace ArtGallery.Tests
                     new Vector2(2, 0) // O
                 });
            
-            int visibleVertexes = 13;
+            int visiblevertices = 13;
             var vertex = polygon.Vertices.ElementAt(1);
 
             var actual = new RotateLineLighthouseToLighthouseVisibility().VisibleVertices(
                 polygon,
                 vertex);
 
-            Assert.AreEqual(visibleVertexes, actual.Count);
+            Assert.AreEqual(visiblevertices, actual.Count);
 
             
         }
