@@ -227,7 +227,7 @@ namespace ArtGallery
                 {
                     Debug.Log(vertex1 + " not guarded");
                     var unguardedIndicator = Resources.Load("Prefabs/NotGuarded") as GameObject;
-                    GameObject.Instantiate(unguardedIndicator, new Vector2(vertex1.x, vertex1.y), Quaternion.identity);
+                    GameObject.Instantiate(unguardedIndicator, new Vector3(vertex1.x, vertex1.y, -5f), Quaternion.identity);
                     allGuarded = false;
                 }
             }
