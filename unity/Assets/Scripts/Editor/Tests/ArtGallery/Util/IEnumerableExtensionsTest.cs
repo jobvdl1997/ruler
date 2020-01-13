@@ -60,5 +60,66 @@
 
             Assert.AreEqual(start, actual.First());
         }
+
+        [Test]
+        public void StartAtTest3()
+        {
+            var input = new List<int>
+            {
+                1,
+                1,
+                2,
+                2,
+                3,
+                4,
+                5,
+                6
+            };
+
+            var expectedList = new List<int>
+            {
+                2,
+                2,
+                3,
+                4,
+                5,
+                6,
+                1,
+                1,
+            };
+
+            var start = 2;
+
+            Assert.AreNotEqual(start, input.First());
+
+            var actual = input.StartAt(start).ToList();
+
+            Assert.AreEqual(start, actual.First());
+
+            for (int i = 0; i < expectedList.Count; i++)
+            {
+                Assert.AreEqual(expectedList[i], actual[i]);
+            }
+        }
+
+        [Test]
+        public void StartAtTest4()
+        {
+            var input = new List<int>
+            {
+                1,
+                1,
+                2,
+                2,
+                3,
+                4,
+                5,
+                6
+            };
+
+            var start = 8;
+
+            Assert.Throws<ArgumentException>(() => input.StartAt(start));
+        }
     }
 }

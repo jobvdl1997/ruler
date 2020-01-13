@@ -43,12 +43,12 @@ namespace ArtGallery
         /// <inheritdoc />
         public bool VisibleToOtherVertex(
             Vector2 vertex,
-            List<Vector2> otherVerteces,
+            List<Vector2> othervertices,
             Polygon2D polygon)
         {
             //For each of the other vertices check if at least one is
             // visible. If so, return true else return false.
-            foreach (Vector2 otherVertece in otherVerteces)
+            foreach (Vector2 otherVertece in othervertices)
             {
                 if (VisibleToOtherVertex(vertex, otherVertece, polygon))
                 {
@@ -153,7 +153,7 @@ namespace ArtGallery
         ///     Checks if the vertex
         ///     <paramref name="vertex" />
         ///     can be seen by any of the vertices in
-        ///     <paramref name="otherVerteces" />
+        ///     <paramref name="othervertices" />
         ///     in the context of
         ///     <paramref name="polygon" />
         ///     and creates a collection of vertices that can see
@@ -161,22 +161,22 @@ namespace ArtGallery
         /// </summary>
         /// <param name="vertex">
         ///     The vertex that needs to be seen by any of the vertices in
-        ///     <paramref name="otherVerteces" />
+        ///     <paramref name="othervertices" />
         /// </param>
-        /// <param name="otherVerteces">
+        /// <param name="othervertices">
         ///     The vertices that need to see
         ///     <paramref name="vertex" />
         /// </param>
         /// <param name="polygon">The polygon in which the vertices exist.</param>
         /// <returns>
         ///     A collection of all vertices in
-        ///     <paramref name="otherVerteces" />
+        ///     <paramref name="othervertices" />
         ///     that can see the vertex
         ///     <paramref name="vertex" />
         /// </returns>
         public ICollection<Vector2> VisibleToOtherVertices(
             Vector2 vertex,
-            List<Vector2> otherVerteces,
+            List<Vector2> othervertices,
             Polygon2D polygon)
         {
             List<Vector2> result = new List<Vector2>();
@@ -193,7 +193,7 @@ namespace ArtGallery
             }
 
             // check if the vertex can be seen by any of the other vertices
-            foreach (Vector2 vertex2 in otherVerteces)
+            foreach (Vector2 vertex2 in othervertices)
             {
                 // If the vertex can be seen by one other vertex add it to the 
                 // list

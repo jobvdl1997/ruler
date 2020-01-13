@@ -30,25 +30,26 @@ namespace ArtGallery
             T start)
         {
             var collectionList = collection.ToList();
-            int vIndex = -1;
-            int collectionCount = collectionList.Count;
+            // int vIndex = -1;
+            // int collectionCount = collectionList.Count;
+            //
+            // for (int i = 0; i < collectionCount; i++)
+            // {
+            //     if (collectionList[i].Equals(start))
+            //     {
+            //         vIndex = i;
+            //
+            //         break;
+            //     }
+            // }
 
-            for (int i = 0; i < collectionCount; i++)
-            {
-                if (collectionList[i].Equals(start))
-                {
-                    vIndex = i;
-
-                    break;
-                }
-            }
-
+            int vIndex = collectionList.FindIndex(i => i.Equals(start));
             if (vIndex == -1)
             {
                 throw new ArgumentException(
                     "The element start does not occur in the collection");
             }
-
+            
             // adjusts positions such that start at the beginning
             var result = collectionList.Skip(vIndex)
                                        .Concat(collectionList.Take(vIndex))
