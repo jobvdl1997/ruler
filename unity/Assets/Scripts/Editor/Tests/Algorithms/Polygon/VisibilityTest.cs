@@ -363,6 +363,9 @@ namespace Util.Algorithms.Polygon.Tests
             float expectedArea1 = 24f;
             float actualArea1 = vision1.Area;
 
+            Console.WriteLine(polygon.Visualize());
+
+            Console.WriteLine(vision1.Visualize());
             Assert.IsTrue(MathUtil.EqualsEps(expectedArea1, actualArea1));
         }
 

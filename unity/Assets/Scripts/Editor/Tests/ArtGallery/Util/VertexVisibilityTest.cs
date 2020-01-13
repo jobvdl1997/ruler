@@ -8,7 +8,7 @@ using NUnit.Framework;
 using UnityEngine;
 using Util.Geometry.Polygon;
 
-namespace Assets.Scripts.Editor.Tests.ArtGallery.Util
+namespace ArtGallery.Tests
 {
     [TestFixture]
     public class VertexVisibilityTest
@@ -198,6 +198,7 @@ namespace Assets.Scripts.Editor.Tests.ArtGallery.Util
                 VertexVisibility.VisibleVertices(
                     polygon,
                     vertex);
+           
 
             Assert.AreEqual(visiblevertices, actual.Count);
         }

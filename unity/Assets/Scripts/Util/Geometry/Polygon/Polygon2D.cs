@@ -1,4 +1,7 @@
-﻿namespace Util.Geometry.Polygon
+﻿using System.Globalization;
+using System.Text;
+
+namespace Util.Geometry.Polygon
 {
     using System;
     using System.Collections.Generic;
@@ -28,6 +31,22 @@
         public ICollection<Vector2> Vertices { get { return m_vertices; } }
 
         public int VertexCount { get { return m_vertices.Count; } }
+
+        public string Visualize()
+        {
+            var result = new StringBuilder();
+            
+                result.Append("\\draw ");
+                foreach (var point in Vertices)
+                {
+                    result.Append("("+ point.x.ToString("0.0", CultureInfo.InvariantCulture) + ", "+ point.y.ToString("0.0", CultureInfo.InvariantCulture) + ") -- ");
+                }
+
+                result.Append("cycle;");
+            
+
+            return result.ToString();
+        }
 
         /// <summary>
         /// Computes the area spanned by this polygon
