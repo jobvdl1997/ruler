@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Globalization;
+using System.Linq;
+using System.Text;
 
 namespace Util.Algorithms.Polygon.Tests
 {
@@ -363,10 +365,58 @@ namespace Util.Algorithms.Polygon.Tests
             float expectedArea1 = 24f;
             float actualArea1 = vision1.Area;
 
-            Console.WriteLine(polygon.Visualize());
-
-            Console.WriteLine(vision1.Visualize());
+            
             Assert.IsTrue(MathUtil.EqualsEps(expectedArea1, actualArea1));
+        }
+        [Test]
+        public void visTest1()
+        {
+            var polygon = new Polygon2D(
+                new List<Vector2>()
+                {
+                    new Vector2(0, 0),
+                    new Vector2(0, 4),
+                    new Vector2(4, 4),
+                    new Vector2(4, 6),
+                    new Vector2(5, 4),
+                    new Vector2(6, 6),
+                    new Vector2(6, 4),
+                    new Vector2(8, 4),
+                    new Vector2(10, 4),
+                    new Vector2(10, 2),
+                    new Vector2(8, 2),
+                    new Vector2(6, 2),
+                    new Vector2(4, 2),
+                    new Vector2(2, 2),
+                    new Vector2(2, 0)
+                });
+
+            Console.WriteLine(vis(polygon));
+        }
+
+        public string vis(Polygon2D polygon)
+        {
+            StringBuilder st = new StringBuilder();
+
+            st.AppendLine(" \\begin{tikzpicture}");
+            st.AppendLine("\\draw[step=1.0,lightgray,thin] (-3,-3) grid (11, 11);");
+            st.AppendLine(polygon.Visualize("blue", 0.4f));
+
+            st.AppendLine(" \\end{tikzpicture}\\\\");
+
+            foreach (Vector2 vertex in polygon.Vertices)
+            {
+                var vision1 = Visibility.Vision(polygon, vertex);
+                st.AppendLine(" \\begin{tikzpicture}");
+                st.AppendLine("\\draw[step=1.0,lightgray,thin] (-3,-3) grid (11, 11);");
+                st.AppendLine("\\node [red] at " + "(" + vertex.x.ToString("0.0", CultureInfo.InvariantCulture) + ", " + vertex.y.ToString("0.0", CultureInfo.InvariantCulture) + ")  {\\textbullet};");
+                st.AppendLine(polygon.Visualize("blue", 0.4f));
+
+                st.AppendLine(vision1.Visualize("green", 0.4f));
+                st.AppendLine(" \\end{tikzpicture}\\\\");
+            }
+
+            return st.ToString();
         }
 
         [Test]

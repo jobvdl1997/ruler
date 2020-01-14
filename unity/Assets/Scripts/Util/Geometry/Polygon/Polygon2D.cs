@@ -34,16 +34,21 @@ namespace Util.Geometry.Polygon
 
         public string Visualize()
         {
-            var result = new StringBuilder();
-            
-                result.Append("\\draw ");
-                foreach (var point in Vertices)
-                {
-                    result.Append("("+ point.x.ToString("0.0", CultureInfo.InvariantCulture) + ", "+ point.y.ToString("0.0", CultureInfo.InvariantCulture) + ") -- ");
-                }
+            return Visualize("black", 1);
+        }
 
-                result.Append("cycle;");
-            
+        public string Visualize(string color, float opacity)
+        {
+            var result = new StringBuilder();
+
+            result.Append("\\draw [fill="+ color + ", opacity=" + opacity.ToString("0.0", CultureInfo.InvariantCulture) + ", draw=" + color + "]  ");
+            foreach (var point in Vertices)
+            {
+                result.Append("(" + point.x.ToString("0.0", CultureInfo.InvariantCulture) + ", " + point.y.ToString("0.0", CultureInfo.InvariantCulture) + ") -- ");
+            }
+
+            result.Append("cycle;");
+
 
             return result.ToString();
         }
