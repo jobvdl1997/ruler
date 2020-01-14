@@ -394,12 +394,34 @@ namespace Util.Algorithms.Polygon.Tests
             Console.WriteLine(vis(polygon));
         }
 
+        [Test]
+        public void visTest2()
+        {
+            var polygon = new Polygon2D(
+                new List<Vector2>()
+                {
+                    new Vector2(64, 704),
+                    new Vector2(128, 704),
+                    new Vector2(128, 768),
+                    new Vector2(192, 768),
+                    new Vector2(192, 672),
+                    new Vector2(128, 672),
+                    new Vector2(112, 624),
+                    new Vector2(64, 624),
+
+                  
+                });
+
+            Console.WriteLine(vis(polygon));
+        }
+
         public string vis(Polygon2D polygon)
         {
             StringBuilder st = new StringBuilder();
 
             st.AppendLine(" \\begin{tikzpicture}");
-            st.AppendLine("\\draw[step=1.0,lightgray,thin] (-3,-3) grid (11, 11);");
+
+            // st.AppendLine("\\draw[step=1.0,lightgray,thin] (-3,-3) grid (11, 11);");
             st.AppendLine(polygon.Visualize("blue", 0.4f));
 
             st.AppendLine(" \\end{tikzpicture}\\\\");
@@ -408,7 +430,7 @@ namespace Util.Algorithms.Polygon.Tests
             {
                 var vision1 = Visibility.Vision(polygon, vertex);
                 st.AppendLine(" \\begin{tikzpicture}");
-                st.AppendLine("\\draw[step=1.0,lightgray,thin] (-3,-3) grid (11, 11);");
+                // st.AppendLine("\\draw[step=1.0,lightgray,thin] (-3,-3) grid (11, 11);");
                 st.AppendLine("\\node [red] at " + "(" + vertex.x.ToString("0.0", CultureInfo.InvariantCulture) + ", " + vertex.y.ToString("0.0", CultureInfo.InvariantCulture) + ")  {\\textbullet};");
                 st.AppendLine(polygon.Visualize("blue", 0.4f));
 
