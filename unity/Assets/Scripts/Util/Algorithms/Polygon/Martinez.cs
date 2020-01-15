@@ -25,6 +25,7 @@ namespace Util.Algorithms.Polygon
         /// The ResultEvents contains all events in-order that they were encountered.
         /// </summary>
         private List<SweepEvent> ResultEvents { get; set; }
+
         public ContourPolygon Result { get; private set; }
 
         // Helper properties (cache etc.)
@@ -145,13 +146,15 @@ namespace Util.Algorithms.Polygon
             event1.OtherEvent = event2;
 
             // The segment could be ordered the wrong way around, so we need to set the IsStart field properly
-            if (segment.Min == segment.Point1)
+            if (MathUtil.EqualsEps(segment.Min, segment.Point1))
             {
                 event2.IsStart = false;
+                event1.Line = event2.Line = segment.Line;
             }
             else
             {
                 event1.IsStart = false;
+                event1.Line = event2.Line = segment.Opposite.Line;
             }
 
             list.Add(event1);
@@ -161,11 +164,11 @@ namespace Util.Algorithms.Polygon
         private void HandleEvent(IBST<ISweepEvent<StatusItem>> events, IBST<StatusItem> status,
             ISweepEvent<StatusItem> sweepEvent)
         {
-            foreach (var ss in events)
+            /*foreach (var ss in events)
             {
-                Debug.Log(ss.ToString());
-            }
-            
+                Debug.Log(string.Format("{0} - {1}", RuntimeHelpers.GetHashCode(ss), ss));
+            }*/
+
             var ev = sweepEvent as SweepEvent;
             if (ev == null)
             {
@@ -200,6 +203,7 @@ namespace Util.Algorithms.Polygon
                 StatusItem next;
                 if (status.FindNextBiggest(ev.StatusItem, out next))
                 {
+                    Debug.Log("next found");
                     // Process a possible intersection between "ev" and its next neighbor in status
                     if (PossibleIntersection(ev, next.SweepEvent, events) == 2)
                     {
@@ -211,6 +215,7 @@ namespace Util.Algorithms.Polygon
                 // Process a possible intersection between "ev" and its previous neighbor in status
                 if (prevFound)
                 {
+                    Debug.Log("prev found");
                     if (PossibleIntersection(prev.SweepEvent, ev, events) == 2)
                     {
                         StatusItem prevprev;
@@ -305,18 +310,22 @@ namespace Util.Algorithms.Polygon
 
         private int PossibleIntersection(SweepEvent ev1, SweepEvent ev2, IBST<ISweepEvent<StatusItem>> events)
         {
-            Vector2 ip1, ip2; // Intersection points
+            Vector2? ip1; // Intersection point
 
-            var nIntersections = FindIntersection(ev1.Segment, ev2.Segment, out ip1, out ip2);
+            Debug.Log(string.Format("Finding intersections between {0} and {1}", ev1.Segment, ev2.Segment));
+            var nIntersections = FindIntersection(ev1.Segment, ev2.Segment, out ip1);
 
             if (nIntersections == 0)
             {
                 return 0; // no intersection
             }
-            
-            Debug.Log(string.Format("Number of intersections = {0} {1} {2} {3} {4}", nIntersections, VT(ev1.Pos), VT(ev2.Pos), VT(ev1.OtherEvent.Pos), VT(ev2.OtherEvent.Pos)));
 
-            if (nIntersections == 1 && (MathUtil.EqualsEps(ev1.Pos, ev2.Pos) || MathUtil.EqualsEps(ev1.OtherEvent.Pos, ev2.OtherEvent.Pos)))
+            Debug.Log(string.Format("Number of intersections = {0} [{1}-{2}] [{3}-{4}]", nIntersections, VT(ev1.Pos),
+                VT(ev1.OtherEvent.Pos), VT(ev2.Pos), VT(ev2.OtherEvent.Pos)));
+
+            // If the intersection is between two endpoints
+            if (nIntersections == 1 && (MathUtil.EqualsEps(ev1.Pos, ev2.Pos) ||
+                                        MathUtil.EqualsEps(ev1.OtherEvent.Pos, ev2.OtherEvent.Pos)))
             {
                 Debug.Log("skipping");
                 return 0; // the line segments intersect at an endpoint of both line segments
@@ -332,14 +341,18 @@ namespace Util.Algorithms.Polygon
             // The line segments associated to ev1 and ev2 intersect
             if (nIntersections == 1)
             {
-                if (!MathUtil.EqualsEps(ev1.Pos, ip1) && !MathUtil.EqualsEps(ev1.OtherEvent.Pos, ip1)) // If the intersection point is not an endpoint of ev1.Segment
+                Debug.Log("not skipping " + Vector2.Distance(ev1.Pos, ev2.Pos));
+                var intersectionPoint = ip1.Value;
+                if (!ev1.Segment.IsEndpoint(intersectionPoint)
+                ) // If the intersection point is not an endpoint of ev1.Segment
                 {
-                    DivideSegment(ev1, ip1, events);
+                    DivideSegment(ev1, intersectionPoint, events);
                 }
 
-                if (!MathUtil.EqualsEps(ev2.Pos, ip1) && !MathUtil.EqualsEps(ev2.OtherEvent.Pos, ip1)) // If the intersection point is not an endpoint of ev2.Segment
+                if (!ev2.Segment.IsEndpoint(intersectionPoint)
+                ) // If the intersection point is not an endpoint of ev2.Segment
                 {
-                    DivideSegment(ev2, ip1, events);
+                    DivideSegment(ev2, intersectionPoint, events);
                 }
 
                 return 1;
@@ -411,137 +424,34 @@ namespace Util.Algorithms.Polygon
             return 3;
         }
 
-        private int FindIntersection(LineSegment seg0, LineSegment seg1, out Vector2 pi0, out Vector2 pi1)
+        private int FindIntersection(LineSegment seg0, LineSegment seg1, out Vector2? intersectionPoint)
         {
-            // TODO: Convert this to be more elegant and use existing methods
-            pi0 = new Vector2();
-            pi1 = new Vector2();
-
-            var p0 = seg0.Point1;
-            var d0 = new Vector2(seg0.Point2.x - p0.x, seg0.Point2.y - p0.y);
-            var p1 = seg1.Point1;
-            var d1 = new Vector2(seg1.Point2.x - p1.x, seg1.Point2.y - p1.y);
-            var sqrEpsilon = 0.0000001;
-            var E = new Vector2(p1.x - p0.x, p1.y - p0.y);
-            var kross = d0.x * d1.y - d0.y * d1.x;
-            var sqrKross = kross * kross;
-            var sqrLen0 = d0.x * d0.x + d0.y + d0.y;
-            var sqrLen1 = d1.x * d1.x + d1.y * d1.y;
-
-            if (sqrKross > sqrEpsilon * sqrLen0 * sqrLen1)
+            // They are parallel, so the only possible intersection would be if they coincide
+            if (seg0.IsParallel(seg1))
             {
-                // Lines of the segments are not parallel
-                var s = (E.x * d1.y - E.y * d1.x) / kross;
-                if (s < 0 || s > 1)
+                // There is no unique intersection point
+                intersectionPoint = null;
+
+                // Now we simply need to check whether they coincide
+                var intervalXIntersection = seg0.XInterval.Intersect(seg1.XInterval);
+                var intervalYIntersection = seg0.YInterval.Intersect(seg1.YInterval);
+
+                // They only coincide if both of their intervals overlap
+                if (intervalXIntersection == null || intervalYIntersection == null)
                 {
                     return 0;
                 }
 
-                var t = (E.x * d0.y - E.y * d0.x) / kross;
-                if (t < 0 || t > 1)
-                {
-                    return 0;
-                }
-
-                // Intersection of lines is a point on each segment
-                pi0 = new Vector2(p0.x + s * d0.x, p0.y + s * d0.y);
-                if (Vector2.Distance(pi0, seg0.Point1) < 0.00000001)
-                {
-                    pi0 = seg0.Point1;
-                }
-
-                if (Vector2.Distance(pi0, seg0.Point2) < 0.00000001)
-                {
-                    pi0 = seg0.Point2;
-                }
-
-                if (Vector2.Distance(pi0, seg1.Point1) < 0.00000001)
-                {
-                    pi0 = seg1.Point1;
-                }
-
-                if (Vector2.Distance(pi0, seg1.Point2) < 0.00000001)
-                {
-                    pi0 = seg1.Point2;
-                }
-
-                return 1;
+                return 2;
             }
 
-            // Lines of the segments are parallel
-            var sqrLenE = E.x * E.x + E.y * E.y;
-            kross = E.x * d0.y - E.y * d0.x;
-            sqrKross = kross * kross;
-            if (sqrKross > sqrEpsilon * sqrLen0 * sqrLenE)
+            intersectionPoint = seg0.Intersect(seg1);
+            if (intersectionPoint == null)
             {
-                // Lines of the segments are different
                 return 0;
             }
 
-            // Lines of the segments are the same. Need to test for overlap of segments.
-            var s0 = (d0.x * E.x + d0.y * E.y) / sqrLen0; // s0 = Dot(D0, E) * sqrLen0
-            var s1 = s0 + (d0.x * d1.x + d0.y * d1.y) / sqrLen0; // s1 = s0 + Dot(D0, D1) * sqrLen0
-            var smin = System.Math.Min(s0, s1);
-            var smax = System.Math.Max(s0, s1);
-            var w = new float[2];
-            var imax = FindIntersection(0, 1, smin, smax, w);
-
-            if (imax > 0)
-            {
-                pi0 = new Vector2(p0.x + w[0] * d0.x, p0.y + w[0] * d0.y);
-                if (Vector2.Distance(pi0, seg0.Point1) < 0.00000001)
-                {
-                    pi0 = seg0.Point1;
-                }
-
-                if (Vector2.Distance(pi0, seg0.Point2) < 0.00000001)
-                {
-                    pi0 = seg0.Point2;
-                }
-
-                if (Vector2.Distance(pi0, seg1.Point1) < 0.00000001)
-                {
-                    pi0 = seg1.Point1;
-                }
-
-                if (Vector2.Distance(pi0, seg1.Point2) < 0.00000001)
-                {
-                    pi0 = seg1.Point2;
-                }
-
-                if (imax > 1)
-                {
-                    pi1 = new Vector2(p0.x + w[1] * d0.x, p0.y + w[1] * d0.y);
-                }
-            }
-
-            return imax;
-        }
-
-        private int FindIntersection(float u0, float u1, float v0, float v1, float[] w)
-        {
-            // TODO: Convert this to be more elegant
-            if ((u1 < v0) || (u0 > v1))
-                return 0;
-            if (u1 > v0)
-            {
-                if (u0 < v1)
-                {
-                    w[0] = (u0 < v0) ? v0 : u0;
-                    w[1] = (u1 > v1) ? v1 : u1;
-                    return 2;
-                }
-
-                // u0 == v1
-                w[0] = u0;
-                return 1;
-            }
-            else
-            {
-                // u1 == v0
-                w[0] = u1;
-                return 1;
-            }
+            return 1;
         }
 
         private void DivideSegment(SweepEvent ev, Vector2 pos, IBST<ISweepEvent<StatusItem>> events)
@@ -550,6 +460,8 @@ namespace Util.Algorithms.Polygon
             var r = new SweepEvent(pos, false, ev, ev.PolygonType);
             // "Left event" of the "right line segment" resulting from dividing ev.Segment
             var l = new SweepEvent(pos, true, ev.OtherEvent, ev.PolygonType);
+
+            r.Line = l.Line = ev.Line;
 
             Debug.Log(string.Format("Dividing segment: le = {0}, le.otherEvent = {1}, r = {2}, l = {3}", ev,
                 ev.OtherEvent, r, l));
@@ -577,7 +489,8 @@ namespace Util.Algorithms.Polygon
 
         private void ConnectEdges()
         {
-            var resultEvents = ResultEvents.Where(it => (it.IsStart && it.InResult) || (!it.IsStart && it.OtherEvent.InResult)).ToList();
+            var resultEvents = ResultEvents
+                .Where(it => (it.IsStart && it.InResult) || (!it.IsStart && it.OtherEvent.InResult)).ToList();
 
             // Due to overlapping edges the resultEvents list can be not wholly sorted
             var sorted = false;
@@ -586,7 +499,7 @@ namespace Util.Algorithms.Polygon
                 sorted = true;
                 for (int i = 0; i < resultEvents.Count; i++)
                 {
-                    if (i + 1 < resultEvents.Count && resultEvents[i].CompareTo(resultEvents[i + 1]) > 0)
+                    if (i + 1 < resultEvents.Count && SweepEvent.Compare(resultEvents[i], resultEvents[i + 1]))
                     {
                         var tmp = resultEvents[i];
                         resultEvents[i] = resultEvents[i + 1];
@@ -605,7 +518,7 @@ namespace Util.Algorithms.Polygon
                 {
                     continue;
                 }
-                
+
                 var tmp = resultEvent.PositionInResult;
                 resultEvent.PositionInResult = resultEvent.OtherEvent.PositionInResult;
                 resultEvent.OtherEvent.PositionInResult = tmp;
@@ -718,7 +631,7 @@ namespace Util.Algorithms.Polygon
             public Vector2 Pos { get; private set; }
 
             public StatusItem StatusItem { get; set; }
-            
+
             /// <summary>
             /// Is Pos the left endpoint of the edge 
             /// </summary>
@@ -741,6 +654,7 @@ namespace Util.Algorithms.Polygon
             /// Is this event associated to the Subject or Clipping polygon?
             /// </summary>
             public PolygonType PolygonType { get; private set; }
+
             public EdgeType EdgeType { get; set; }
 
             /// <summary>
@@ -760,25 +674,28 @@ namespace Util.Algorithms.Polygon
             /// This field is used in the second stage of the algorithm to compute child contours.
             /// </summary>
             public SweepEvent PreviousInResult { get; set; }
-            
+
             /// <summary>
             /// Whether this segment is in the result.
             /// </summary>
             public bool InResult { get; set; }
+
             /// <summary>
             /// Stores the position of the segment in the Result.
             /// </summary>
             public int PositionInResult { get; set; }
+
             /// <summary>
             /// Indicates if the segment determines an in-out transition into C for a vertical ray that starts
             /// below C and intersects the segment associated to this segment.
             /// </summary>
             public bool ResultInOut { get; set; }
+
             /// <summary>
             /// The ID that identifies the contour C.
             /// </summary>
             public int ContourId { get; set; }
-            
+
             /// <summary>
             /// Determines whether the line segment is below point p
             /// </summary>
@@ -816,7 +733,9 @@ namespace Util.Algorithms.Polygon
             {
                 get { return new LineSegment(Pos, OtherEvent.Pos); }
             }
-            
+
+            public Line Line { get; set; }
+
             /// <summary>
             /// CompareTo is used for sorting the sweep events in the event BST.
             /// </summary>
@@ -870,13 +789,14 @@ namespace Util.Algorithms.Polygon
                 }
 
                 // Same point, but events are left endpoints or both are right endpoints.
-                if (!MathUtil.EqualsEps(MathUtil.SignedArea(e1.Pos, e1.OtherEvent.Pos, e2.OtherEvent.Pos), 0)
-                ) // Not collinear
+                if (!e1.Line.IsOnLine(e2.OtherEvent.Pos))
                 {
+                    // Not collinear
                     return e1.Above(e2.OtherEvent.Pos); // The event associated to the bottom segment is processed first
                 }
 
-                return e1.PolygonType > e2.OtherEvent.PolygonType;
+                // Collinear
+                return e1.PolygonType > e2.PolygonType;
             }
 
             public static bool SegmentCompare(SweepEvent le1, SweepEvent le2)
@@ -886,11 +806,8 @@ namespace Util.Algorithms.Polygon
                     return false;
                 }
 
-                if (!MathUtil.EqualsEps(
-                        MathUtil.SignedArea(le1.Pos, le1.OtherEvent.Pos, le2.Pos), 0) ||
-                    !MathUtil.EqualsEps(
-                        MathUtil.SignedArea(le1.Pos, le1.OtherEvent.Pos, le2.OtherEvent.Pos),
-                        0))
+                if (!le1.Line.IsOnLine(le2.Pos) ||
+                    !le1.Line.IsOnLine(le2.OtherEvent.Pos))
                 {
                     // Segments are not collinear
                     // If they share their left endpoint use the right endpoint to sort
@@ -994,7 +911,7 @@ namespace Util.Algorithms.Polygon
             Difference,
             Xor
         }
-        
+
         private static string VT(Vector2 v)
         {
             return string.Format("({0:N9},{1:N9})", v.x, v.y);

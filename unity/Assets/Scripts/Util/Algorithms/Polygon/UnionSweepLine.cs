@@ -38,12 +38,35 @@ namespace Util.Algorithms.Polygon
             Debug.Log(builder.ToString());
 
             var result = polygons.First().ToContourPolygon();
+            
+            Debug.Log(result.Visualize());
 
             foreach (var polygon in polygons.Skip(1))
             {
+                Debug.Log(result.PolygonFormat());
+                Debug.Log(polygon.ToContourPolygon().PolygonFormat());
+                Debug.Log(result.Visualize());
+                Debug.Log(polygon.ToContourPolygon().Visualize());
+                builder = new StringBuilder();
+                builder.AppendFormat("var subject = new Polygon2D(new List<Vector2> {0}", "{");
+                foreach (var vertex in result.Vertices)
+                {
+                    builder.AppendFormat("new Vector2(BitConverter.ToSingle(Convert.FromBase64String(\"{0}\"), 0), BitConverter.ToSingle(Convert.FromBase64String(\"{1}\"), 0)), ", Convert.ToBase64String(BitConverter.GetBytes(vertex.x)), Convert.ToBase64String(BitConverter.GetBytes(vertex.y)));
+                }
+                builder.Append("});\n");
+                builder.AppendFormat("var clipping = new Polygon2D(new List<Vector2> {0}", "{");
+                foreach (var vertex in polygon.Vertices)
+                {
+                    builder.AppendFormat("new Vector2(BitConverter.ToSingle(Convert.FromBase64String(\"{0}\"), 0), BitConverter.ToSingle(Convert.FromBase64String(\"{1}\"), 0)), ", Convert.ToBase64String(BitConverter.GetBytes(vertex.x)), Convert.ToBase64String(BitConverter.GetBytes(vertex.y)));
+                }
+                builder.Append("});\n");
+                Debug.Log(builder);
+
                 var martinez = new Martinez(result, polygon.ToContourPolygon(), Martinez.OperationType.Union);
 
                 result = martinez.Run();
+
+                Debug.Log(result.Visualize());
             }
 
             return result;

@@ -1,4 +1,6 @@
-﻿namespace Util.Algorithms
+﻿using System.Runtime.CompilerServices;
+
+namespace Util.Algorithms
 {
     using System;
     using System.Collections.Generic;

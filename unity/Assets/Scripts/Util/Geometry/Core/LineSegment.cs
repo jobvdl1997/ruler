@@ -59,6 +59,17 @@
         }
 
         /// <summary>
+        /// Gives the line segment with the endpoints swapped.
+        /// </summary>
+        public LineSegment Opposite
+        {
+            get
+            {
+                return new LineSegment(Point2, Point1);
+            }
+        }
+
+        /// <summary>
         /// Whether the segment is vertical.
         /// </summary>
         public bool IsVertical { get { return Line.IsVertical; } }
