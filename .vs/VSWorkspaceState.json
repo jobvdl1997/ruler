@@ -3,14 +3,10 @@
     "",
     "\\unity",
     "\\unity\\Assets",
-    "\\unity\\Assets\\ArtGallery",
-    "\\unity\\Assets\\ArtGallery\\GameModes",
     "\\unity\\Assets\\ArtGallery\\GameModes\\VertexGuard",
-    "\\unity\\Assets\\ArtGallery\\GameModes\\VertexGuard\\Levels",
     "\\unity\\Assets\\Scripts",
-    "\\unity\\Assets\\Scripts\\Util",
-    "\\unity\\Assets\\Scripts\\Util\\Geometry"
+    "\\unity\\Assets\\Scripts\\ArtGallery",
+    "\\unity\\Assets\\Scripts\\ArtGallery\\Controller"
   ],
-  "SelectedNode": "\\unity\\Assets\\Scripts\\Util\\Geometry\\Triangulation",
   "PreviewInSolutionExplorer": false
 }
