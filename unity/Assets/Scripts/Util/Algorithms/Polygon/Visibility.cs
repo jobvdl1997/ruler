@@ -144,7 +144,7 @@
             pol.ShiftToOrigin(z);
 
             // check if z is a vertex or not
-            var zIsVertex = pol.Vertices.Contains(Vector2.zero);
+            var zIsVertex = pol.Vertices.Any(v => MathUtil.EqualsEps(v, Vector2.zero));
 
             // determines v0
             int vIndex;
@@ -166,6 +166,9 @@
             // list l
             var l = vertices.Select(x => new PolarPoint2D(x)).ToList();
 
+            // remember original angle
+            initAngle = l[0].Theta;
+
             // if z is a vertex then [v0, v1, ..., vk, z] -> [z, v0, v1, ..., vk]
             if (zIsVertex)
             {
@@ -177,17 +180,6 @@
             else
             {
                 l.Add(new PolarPoint2D(v0));
-            }
-
-            // remember original angle
-            if (zIsVertex)
-            {
-                //v0 has shifted by one, thus take the second element
-                initAngle = l[1].Theta;
-            }
-            else
-            {
-                initAngle = l[0].Theta;
             }
 
             // rotate all points of the shifted polygon clockwise such that v0 lies
@@ -320,7 +312,7 @@
 
             var sj = s.Peek();
 
-            if (sj.alpha < v.Get(i + 1).alpha)
+            if (MathUtil.LEQEps(sj.alpha, v.Get(i + 1).alpha))
             {
                 i++;
 
@@ -468,6 +460,7 @@
                               intersec.p.Cartesian,
                               windowEnd.p.Cartesian)))
                     {
+                        intersec.alpha = s.Peek().alpha;
                         s.Push(intersec);
 
                         return NextCall.ADVANCE;
@@ -614,7 +607,8 @@
                 }
 
                 if (MathUtil.LEQEps(vi1.alpha, sj.alpha) &&
-                    MathUtil.EqualsEps(sj.alpha, sj1.alpha))
+                    sj.alpha == sj1.alpha)
+                    //MathUtil.EqualsEps(sj.alpha, sj1.alpha))
                 {
                     var y = (new LineSegment(vi.p.Cartesian, vi1.p.Cartesian))
                         .Intersect(
@@ -877,7 +871,7 @@
 
                 if (zIsVertex)
                 {
-                    v = ComputeAngularDisplacements(vs.GetRange(1, n));
+                    v = ComputeAngularDisplacements(vs.GetRange(1, vs.Count - 1));
                 }
                 else
                 {
