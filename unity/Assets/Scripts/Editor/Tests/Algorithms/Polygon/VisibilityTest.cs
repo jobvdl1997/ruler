@@ -113,7 +113,7 @@ namespace Util.Algorithms.Polygon.Tests
                     new Vector2(2, 0)
                 });
 
-            int visibleVertexes = 13;
+            int visibleVertexes = 14;
             var vertex = polygon.Vertices.ElementAt(1);
             var vision1 = Visibility.Vision(polygon, vertex);
             Assert.AreEqual(visibleVertexes, vision1.Vertices.Count);
