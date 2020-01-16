@@ -210,12 +210,11 @@ namespace Util.Algorithms.Polygon.Tests
                 new Vector2(4.00428f, 2.665259f),
             });
 
-            Debug.Log(polygon0.ToContourPolygon().Visualize());
-            Debug.Log(polygon1.ToContourPolygon().Visualize());
             var polygon2Ds = new List<Polygon2D> {polygon0, polygon1};
 
             var unionResult = m_union.Union(polygon2Ds);
-            Debug.Log(unionResult.Area);
+
+            Assert.AreEqual(35.57237, unionResult.Area, MathUtil.EPS * 100);
         }
 
         [Test]
@@ -258,20 +257,8 @@ namespace Util.Algorithms.Polygon.Tests
 
             var polygon2Ds = new List<Polygon2D> {polygon0, polygon1};
 
-            Debug.Log(polygon0.ToContourPolygon().Visualize());
-            Debug.Log(polygon1.ToContourPolygon().Visualize());
-
             var unionResult = m_union.Union(polygon2Ds);
-            var pol = unionResult as ContourPolygon;
-            Debug.Log(polygon0.ToContourPolygon().Visualize());
-            Debug.Log(polygon1.ToContourPolygon().Visualize());
-            Debug.Log(pol.Visualize());
-            Debug.Log(unionResult.Area);
-            Assert.Greater(unionResult.Area, 0);
-
-            Debug.Log(polygon0.ToContourPolygon().PolygonFormat());
-            Debug.Log(polygon1.ToContourPolygon().PolygonFormat());
-            Debug.Log((unionResult as ContourPolygon).PolygonFormat());
+            Assert.AreEqual(35.57237, unionResult.Area, MathUtil.EPS * 100);
         }
 
         [Test]
@@ -279,34 +266,81 @@ namespace Util.Algorithms.Polygon.Tests
         {
             var subject = new Polygon2D(new List<Vector2>
             {
-                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("AACgQA=="), 0),
-                    BitConverter.ToSingle(Convert.FromBase64String("AACAPw=="), 0)),
-                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("AAAgQQ=="), 0),
-                    BitConverter.ToSingle(Convert.FromBase64String("AACAPw=="), 0)),
-                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("AACAQQ=="), 0),
-                    BitConverter.ToSingle(Convert.FromBase64String("AACAPw=="), 0)),
-                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("AACgQA=="), 0),
-                    BitConverter.ToSingle(Convert.FromBase64String("AADIQQ=="), 0)),
-                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("AACgQA=="), 0),
-                    BitConverter.ToSingle(Convert.FromBase64String("AAAgQQ=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("DiOAQA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("nJMqQA=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("9xmAwA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("TqgqQA=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("aQWAwA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("yVcqwA=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("JA+rvw=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("z8YqwA=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("cieqvw=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("ABZguw=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("MiCqPw=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("AOByOg=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("KAqAQA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("jFamvw=="), 0)),
             });
             var clipping = new Polygon2D(new List<Vector2>
             {
-                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("AAAAAA=="), 0),
-                    BitConverter.ToSingle(Convert.FromBase64String("AAAgQQ=="), 0)),
-                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("AAAQQQ=="), 0),
-                    BitConverter.ToSingle(Convert.FromBase64String("AAAgQQ=="), 0)),
-                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("AAAQQQ=="), 0),
-                    BitConverter.ToSingle(Convert.FromBase64String("AABwQQ=="), 0)),
-                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("AAAAAA=="), 0),
-                    BitConverter.ToSingle(Convert.FromBase64String("AABwQQ=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("KAqAQA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("2YoqwA=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("zryqPw=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("j3UqwA=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("MCCqPw=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("AOByOg=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("cieqvw=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("ABRguw=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("+BmAwA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("iDpQvw=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("9hmAwA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("UKgqQA=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("DyOAQA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("nJMqQA=="), 0)),
             });
 
             var polygon2Ds = new List<Polygon2D> {subject, clipping};
             var unionResult = m_union.Union(polygon2Ds);
 
-            var pol = unionResult as ContourPolygon;
-            Debug.Log(pol.Visualize());
+            Assert.AreEqual(35.57237, unionResult.Area, MathUtil.EPS * 100);
+        }
+
+        [Test]
+        public void UnionTest6()
+        {
+            var subject = new Polygon2D(new List<Vector2>
+            {
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("DNKAvw=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("DGBAPw=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("fSoAwA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("kElQQA=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("ECmAwA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("NjR/Pg=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("JU6Avw=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("NkVQwA=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("ZnI7QA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("XPykvw=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("NS2/Pw=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("4FU/vw=="), 0)),
+            });
+            var clipping = new Polygon2D(new List<Vector2>
+            {
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("p79/QA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("amRBvw=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("JE6Avw=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("OEVQwA=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("OcogwA=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("cAe/vw=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("Ni2/Pw=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("4FU/vw=="), 0)),
+                new Vector2(BitConverter.ToSingle(Convert.FromBase64String("fivAPw=="), 0),
+                    BitConverter.ToSingle(Convert.FromBase64String("XukvQA=="), 0)),
+            });
+            
+            var polygon2Ds = new List<Polygon2D> {subject, clipping};
+            var unionResult = m_union.Union(polygon2Ds);
+
+            Assert.Greater(0, unionResult.Area);
         }
     }
 }

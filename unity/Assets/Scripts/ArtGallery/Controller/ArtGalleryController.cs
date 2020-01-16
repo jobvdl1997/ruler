@@ -106,6 +106,8 @@
             m_maxNumberOfLighthouses = level.MaxNumberOfLighthouses;
             m_levelMesh.Polygon = LevelPolygon;
 
+            Debug.Log("Area of new polygon = " + LevelPolygon.Area);
+
             // update text box
             UpdateLighthouseText();
         }

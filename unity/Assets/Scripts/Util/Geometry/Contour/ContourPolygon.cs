@@ -148,6 +148,37 @@ namespace Util.Geometry.Contour
             return result.ToString();
         }
 
+        public string GeoJson()
+        {
+            var builder = new StringBuilder();
+            builder.Append("{ \"type\": \"Feature\", \"properties\": {}, \"geometry\": { \"type\": \"Polygon\", \"coordinates\": [");
+            var firstContour = true;
+            foreach (var contour in Contours)
+            {
+                if (!firstContour)
+                {
+                    builder.Append(",");
+                }
+                else
+                {
+                    firstContour = false;
+                }
+
+                builder.Append("[");
+                
+                foreach (var vertex in contour.Vertices)
+                {
+                    builder.AppendFormat("[{0},{1}], ", vertex.x, vertex.y);
+                }
+                // The first and last coordinates are equivalent in GeoJSON
+                builder.AppendFormat("[{0},{1}]", contour.Vertices[0].x, contour.Vertices[0].y);
+                
+                builder.Append("]");
+            }
+            builder.AppendLine("]}}");
+            return builder.ToString();
+        }
+
         public bool Equals(IPolygon2D other)
         {
             throw new System.NotImplementedException();

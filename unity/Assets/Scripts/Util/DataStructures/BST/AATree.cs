@@ -1,7 +1,10 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using UnityEngine;
 
 namespace Util.DataStructures.BST
 {
@@ -190,9 +193,11 @@ namespace Util.DataStructures.BST
             nodeStack.Push(new TraversalHistory(currentNode, parent, TraversalHistory.ECHILDSIDE.ISROOT));
             while (currentNode != m_Bottom)
             {
+                // Debug.Log(string.Format("currentNode = {0}", RuntimeHelpers.GetHashCode(currentNode.Data)));
                 parent = currentNode;
                 TraversalHistory hist;
                 int comparisonResult = CompareTo(data, currentNode.Data, COMPARISON_TYPE.DELETE);
+                // Debug.Log(string.Format("Comparing {0} to {1}: {2}", data, currentNode.Data, comparisonResult));
                 if (comparisonResult < 0)
                 {
                     currentNode = currentNode.Left;
@@ -734,6 +739,39 @@ namespace Util.DataStructures.BST
         public override string ToString()
         {
             return string.Format("Root: {0}", Root);
+        }
+
+        public string Graphviz()
+        {
+            var builder = new StringBuilder();
+
+            builder.AppendLine("digraph G {");
+            GraphvizNode(m_Root, null, builder);
+            builder.AppendFormat("{0} [label=\"{1}\", color=red];\n", System.Math.Abs(RuntimeHelpers.GetHashCode(m_Bottom)), "bottom");
+            builder.AppendLine("}");
+
+            return builder.ToString();
+        }
+
+        private void GraphvizNode(Node node, Node parent, StringBuilder builder)
+        {
+            if (node == parent || node == null)
+            {
+                return;
+            }
+
+            if (node != m_Bottom)
+            {
+                builder.AppendFormat("{0} [label=\"{1} - {2}\"];\n", System.Math.Abs(RuntimeHelpers.GetHashCode(node)), RuntimeHelpers.GetHashCode(node.Data), node.Data);   
+            }
+
+            if (parent != null)
+            {
+                builder.AppendFormat("{0} -> {1};\n", System.Math.Abs(RuntimeHelpers.GetHashCode(parent)), System.Math.Abs(RuntimeHelpers.GetHashCode(node)));   
+            }
+            
+            GraphvizNode(node.Left, node, builder);
+            GraphvizNode(node.Right, node, builder);
         }
 
         /// <summary>

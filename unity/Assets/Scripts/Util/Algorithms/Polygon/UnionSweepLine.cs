@@ -61,6 +61,8 @@ namespace Util.Algorithms.Polygon
                 }
                 builder.Append("});\n");
                 Debug.Log(builder);
+                Debug.Log(result.GeoJson());
+                Debug.Log(polygon.ToContourPolygon().GeoJson());
 
                 var martinez = new Martinez(result, polygon.ToContourPolygon(), Martinez.OperationType.Union);
 
