@@ -848,7 +848,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f945461e934c04f858292a72109dcba0, type: 3}
   - {fileID: 11400000, guid: 01648505b00ae4389a4f3a433e65a2fa, type: 3}
   m_victoryScreen: agVictory
-  m_lighthousePrefab: {fileID: 189480, guid: fa103757a7ad3524da593486405a0352, type: 2}
+  m_lighthousePrefab: {fileID: 189480, guid: f2dc3a13ba22ce347b69b69528ffb6c3, type: 2}
   m_advanceButton: {fileID: 2135131466}
   m_lighthouseText: {fileID: 148341695}
 --- !u!1 &2028647603
