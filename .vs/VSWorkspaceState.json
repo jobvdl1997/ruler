@@ -3,10 +3,10 @@
     "",
     "\\unity",
     "\\unity\\Assets",
+    "\\unity\\Assets\\ArtGallery\\GameModes\\VertexGuard",
     "\\unity\\Assets\\Scripts",
     "\\unity\\Assets\\Scripts\\ArtGallery",
     "\\unity\\Assets\\Scripts\\ArtGallery\\Controller"
   ],
-  "SelectedNode": "\\unity\\Assets\\Scripts\\ArtGallery\\Controller\\ArtGalleryGuardedVertexGuardsController.cs",
   "PreviewInSolutionExplorer": false
 }

@@ -30,6 +30,10 @@
             {
                 m_advanceButton.Enable();
             }
+            else
+            {
+                m_advanceButton.Disable();
+            }
         }
 
         protected override void Update()

@@ -29,10 +29,15 @@ namespace ArtGallery
         {
             bool everythingVisible = CheckVisibility();
             bool allGuardsVisible = CheckGuardedGuards();
+            Debug.Log("Everything is visible: " + everythingVisible + "; All guards are visible: " + allGuardsVisible);
 
             if (everythingVisible && allGuardsVisible)
             {
                 m_advanceButton.Enable();
+            } 
+            else
+            {
+                m_advanceButton.Disable();
             }
         }
         protected override void Update()

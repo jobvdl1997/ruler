@@ -260,9 +260,8 @@ Prefab:
         \u201Ctorches\u201D inside a polygon (without holes) in order to light up
         the entire polygon. This problem is known to be NP-hard.\n\r\nThe lighting
         area of each torch is calculated via a robust stack-algorithm. We then use
-        the Weiler-Atherron algorithm to remove duplicate parts from the sight areas
-        and finally check if the sum of the sight areas is equal to the area of the
-        dungeon.\r\n"
+        the Martinez union algorithm to calculate the total sight area and finally
+        check if it is equal to the area of the dungeon.\r\n\n\n"
       objectReference: {fileID: 0}
     - target: {fileID: 11497240, guid: 47375d1ad9de78947b5dddba6bf6a125, type: 2}
       propertyPath: m_FontData.m_Font

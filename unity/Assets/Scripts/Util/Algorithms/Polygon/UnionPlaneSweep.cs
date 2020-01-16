@@ -15,7 +15,7 @@ namespace Util.Algorithms.Polygon
     public class UnionPlaneSweep: IUnion
     {
         /// <inheritdoc />
-        public IPolygon2D Union(ICollection<IPolygon2D> polygons)
+        public IPolygon2D Union(ICollection<Polygon2D> polygons)
         {
             throw new NotImplementedException();
         }
