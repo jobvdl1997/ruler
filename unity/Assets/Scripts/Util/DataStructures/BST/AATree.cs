@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using UnityEngine;
 
 namespace Util.DataStructures.BST
 {
@@ -193,11 +192,9 @@ namespace Util.DataStructures.BST
             nodeStack.Push(new TraversalHistory(currentNode, parent, TraversalHistory.ECHILDSIDE.ISROOT));
             while (currentNode != m_Bottom)
             {
-                // Debug.Log(string.Format("currentNode = {0}", RuntimeHelpers.GetHashCode(currentNode.Data)));
                 parent = currentNode;
                 TraversalHistory hist;
                 int comparisonResult = CompareTo(data, currentNode.Data, COMPARISON_TYPE.DELETE);
-                // Debug.Log(string.Format("Comparing {0} to {1}: {2}", data, currentNode.Data, comparisonResult));
                 if (comparisonResult < 0)
                 {
                     currentNode = currentNode.Left;

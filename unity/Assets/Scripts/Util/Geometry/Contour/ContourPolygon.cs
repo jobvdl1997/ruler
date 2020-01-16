@@ -48,7 +48,7 @@ namespace Util.Geometry.Contour
         
         public ICollection<Vector2> Vertices
         {
-            get { return Contours.SelectMany(v => v.Vertices).ToList(); }
+            get { return Contours.SelectMany(v => v.Vertices).Select(v => v.Vector2).ToList(); }
         }
         
         public ICollection<LineSegment> Segments

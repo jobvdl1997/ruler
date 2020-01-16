@@ -20,8 +20,9 @@ namespace Util.Algorithms.Polygon
             {
                 return new MultiPolygon2D();
             }
-
+            
             var builder = new StringBuilder();
+            builder.AppendLine("If the union crashes, use the following to create a unit test:");
 
             int i = 0;
             foreach (var polygon2D in polygons)
@@ -39,10 +40,13 @@ namespace Util.Algorithms.Polygon
 
             var result = polygons.First().ToContourPolygon();
             
+#if UNITY_DEBUG
             Debug.Log(result.Visualize());
+#endif
 
             foreach (var polygon in polygons.Skip(1))
             {
+#if UNITY_DEBUG
                 Debug.Log(result.PolygonFormat());
                 Debug.Log(polygon.ToContourPolygon().PolygonFormat());
                 Debug.Log(result.Visualize());
@@ -63,12 +67,15 @@ namespace Util.Algorithms.Polygon
                 Debug.Log(builder);
                 Debug.Log(result.GeoJson());
                 Debug.Log(polygon.ToContourPolygon().GeoJson());
+#endif
 
                 var martinez = new Martinez(result, polygon.ToContourPolygon(), Martinez.OperationType.Union);
 
                 result = martinez.Run();
 
+#if UNITY_DEBUG
                 Debug.Log(result.Visualize());
+#endif
             }
 
             return result;

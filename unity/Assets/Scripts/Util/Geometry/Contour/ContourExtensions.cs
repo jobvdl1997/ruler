@@ -19,9 +19,9 @@ namespace Util.Geometry.Contour
 
         private static Contour ToContour(this Polygon2D pol)
         {
-            return new Contour(pol.IsClockwise()
+            return new Contour((pol.IsClockwise()
                 ? pol.Vertices.Reverse()
-                : pol.Vertices); // The Polygon2D can be in cw order, while we need it in ccw order
+                : pol.Vertices).Select(v => new Vector2D(v))); // The Polygon2D can be in cw order, while we need it in ccw order
         }
 
         /// <summary>
@@ -43,18 +43,18 @@ namespace Util.Geometry.Contour
         /// <returns></returns>
         public static ContourPolygon ToContourPolygon(this Polygon2DWithHoles pol)
         {
-            var outside = new Contour(pol.IsClockwise()
+            var outside = new Contour((pol.IsClockwise()
                     ? pol.Vertices.Reverse()
-                    : pol.Vertices,
+                    : pol.Vertices).Select(v => new Vector2D(v)),
                 Enumerable.Range(1,
                     pol.Holes.Count)); // The Polygon2D can be in cw order, while we need it in ccw order
             var result = new ContourPolygon();
             result.Add(outside);
             foreach (var hole in pol.Holes)
             {
-                result.Add(new Contour(pol.IsClockwise()
+                result.Add(new Contour((pol.IsClockwise()
                         ? pol.Vertices
-                        : pol.Vertices.Reverse(), Enumerable.Range(1, pol.Holes.Count),
+                        : pol.Vertices.Reverse()).Select(v => new Vector2D(v)), Enumerable.Range(1, pol.Holes.Count),
                     false)); // The Polygon2D can be in ccw order, while we need it in cc order for holes;
             }
 

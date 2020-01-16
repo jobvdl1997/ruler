@@ -12,7 +12,7 @@ namespace Util.Geometry.Contour
         /// <summary>
         /// Set of vertices conforming to the requirements given in ContourPolygon.
         /// </summary>
-        public List<Vector2> Vertices { get; private set; }
+        public List<Vector2D> Vertices { get; private set; }
 
         /// <summary>
         /// Holes of the contour. They are stored as the indexes of the holes in a PolygonContour class.
@@ -31,26 +31,26 @@ namespace Util.Geometry.Contour
 
         public Contour(bool external = true)
         {
-            Vertices = new List<Vector2>();
+            Vertices = new List<Vector2D>();
             Holes = new List<int>();
             External = external;
         }
 
-        public Contour(IEnumerable<Vector2> points, bool external = true)
+        public Contour(IEnumerable<Vector2D> points, bool external = true)
         {
-            Vertices = new List<Vector2>(points);
+            Vertices = new List<Vector2D>(points);
             Holes = new List<int>();
             External = external;
         }
 
-        public Contour(IEnumerable<Vector2> vertices, IEnumerable<int> holes, bool external = true)
+        public Contour(IEnumerable<Vector2D> vertices, IEnumerable<int> holes, bool external = true)
         {
-            Vertices = new List<Vector2>(vertices);
+            Vertices = new List<Vector2D>(vertices);
             Holes = new List<int>(holes);
             External = external;
         }
 
-        public void AddVertex(Vector2 p)
+        public void AddVertex(Vector2D p)
         {
             Vertices.Add(p);
         }
@@ -69,32 +69,41 @@ namespace Util.Geometry.Contour
         {
             Holes.Clear();
         }
-        
+
         public float Area
         {
             get
             {
-                float area = 0;
+                double area = 0;
                 for (int i = 0; i < VertexCount - 1; i++)
                 {
                     area += Vertices[i].x * Vertices[i + 1].y - Vertices[i + 1].x * Vertices[i].y;
                 }
 
                 area += Vertices[Vertices.Count - 1].x * Vertices[0].y - Vertices[0].x * Vertices[Vertices.Count - 1].y;
-                return area / 2f;
+                return (float) (area / 2.0);
             }
         }
 
         public ICollection<LineSegment> Segments
         {
-            get { return Enumerable.Range(0, VertexCount).Select(Segment).ToList(); }
+            get { return Enumerable.Range(0, VertexCount).Select(Segment).Select(v => new LineSegment(v[0].Vector2, v[1].Vector2)).ToList(); }
         }
 
-        public LineSegment Segment(int i)
+        public List<Vector2D> Segment(int i)
         {
-            return (i == VertexCount - 1)
-                ? new LineSegment(Vertices.Last(), Vertices.First())
-                : new LineSegment(Vertices[i], Vertices[i + 1]);
+            if (i == VertexCount - 1)
+            {
+                return new List<Vector2D>
+                {
+                    Vertices.Last(), Vertices.First()
+                };
+            }
+
+            return new List<Vector2D>
+            {
+                Vertices[i], Vertices[i + 1]
+            };
         }
     }
 }

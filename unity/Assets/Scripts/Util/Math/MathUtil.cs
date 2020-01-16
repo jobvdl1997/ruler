@@ -1,4 +1,6 @@
-﻿namespace Util.Math
+﻿using Util.Geometry;
+
+namespace Util.Math
 {
     using System;
     using UnityEngine;
@@ -185,7 +187,7 @@
         }
 
         // Signed area of the triangle (p0, p1, p2)
-        public static float SignedArea(Vector2 p0, Vector2 p1, Vector2 p2)
+        public static double SignedArea(Vector2D p0, Vector2D p1, Vector2D p2)
         {
             return (p0.x- p2.x)*(p1.y - p2.y) - (p1.x - p2.x) * (p0.y - p2.y);
         }

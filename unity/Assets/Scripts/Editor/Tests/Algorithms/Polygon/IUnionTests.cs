@@ -340,7 +340,7 @@ namespace Util.Algorithms.Polygon.Tests
             var polygon2Ds = new List<Polygon2D> {subject, clipping};
             var unionResult = m_union.Union(polygon2Ds);
 
-            Assert.Greater(0, unionResult.Area);
+            Assert.Greater(unionResult.Area, 0);
         }
     }
 }
