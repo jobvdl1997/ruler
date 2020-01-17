@@ -175,9 +175,9 @@ namespace ArtGallery
                 // If the vertex cannot be seen by one other vertex return 
                 if (!VisibleToOtherVertex(vertex, otherVertexes, polygon))
                 {
-                    Debug.Log(vertex1 + " not guarded");
+                    Debug.Log(vertex + " not guarded");
                     var unguardedIndicator = Resources.Load("Prefabs/NotGuarded") as GameObject;
-                    GameObject.Instantiate(unguardedIndicator, new Vector3(vertex1.x, vertex1.y, -5f), Quaternion.identity);
+                    GameObject.Instantiate(unguardedIndicator, new Vector3(vertex.x, vertex.y, -5f), Quaternion.identity);
                     allGuarded = false;
                 }
             }
