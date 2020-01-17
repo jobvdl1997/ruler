@@ -26,7 +26,7 @@ namespace ArtGallery
     public class ArtGalleryGuardedVertexGuardsController : AbstractArtGalleryController
     {
         // specified max number of lighthouses in level
-        private ILighthouseToLightHouseVisibility m_LighthouseToLighthouse = new NaiveLighthouseToLighthouseVisibility();
+        private ILighthouseToLightHouseVisibility m_LighthouseToLighthouse = new SmartLighthouseToLighthouseVisibility();
 
         /// <inheritdoc />
         public override void CheckSolution()
