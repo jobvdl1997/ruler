@@ -9,7 +9,7 @@
     /// Stores a list of lighthouses and can calculate their combined visibility area.
     /// Handles destruction of lighthouse game objects.
     /// </summary>
-    class ArtGallerySolution : ScriptableObject
+    public class ArtGallerySolution : ScriptableObject
     {
         /// <summary>
         /// The number of lighthouses placed
@@ -30,6 +30,11 @@
 
         // collection of lighthouses
         private List<ArtGalleryLightHouse> m_lighthouses;
+
+        public List<ArtGalleryLightHouse> LightHouses
+        {
+            get { return m_lighthouses; }
+        }
 
         // stores lighthouse objects for easy destroyal
         private List<GameObject> m_objects;

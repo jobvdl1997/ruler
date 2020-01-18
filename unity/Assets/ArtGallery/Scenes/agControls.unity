@@ -289,10 +289,14 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11497240, guid: 47375d1ad9de78947b5dddba6bf6a125, type: 2}
       propertyPath: m_Text
-      value: "Welcome eminence,\r\n\r\nPlease illuminate the following dungeons using
-        as few torches as possible.\r\n\r\nGood luck!\r\n\r\nControls:\r\n- Click
-        to place a torch.\r\n- Drag a torch to move it.\r\n- Drag and release a torch
-        outside the dungeon to remove it."
+      value: "Welcome eminence!\n\r\nPoint Game:\r\n- Click to place a torch.\r\n-
+        Drag a torch to move it.\r\n- Drag and release a torch outside the dungeon
+        to remove it.\n- \rLevel is completed when the dungen is fully illuminated.
+        \n\nGuarded Vertex Game:\n- Click to place a torch.\r The torches can only
+        be placed on the vertices of the dungeon.\n- Drag a torch to move it.\r\n-
+        Every torch should be guarded, that is, visible from any other torch. \n-
+        \rLevel is completed when the dungen is fully illuminated and all torches
+        are guarded. "
       objectReference: {fileID: 0}
     - target: {fileID: 11497240, guid: 47375d1ad9de78947b5dddba6bf6a125, type: 2}
       propertyPath: m_FontData.m_Font
