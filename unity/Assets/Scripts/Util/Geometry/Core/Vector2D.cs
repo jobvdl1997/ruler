@@ -1,9 +1,8 @@
-﻿namespace Util.Geometry
+﻿using System;
+using UnityEngine;
+
+namespace Util.Geometry
 {
-    using System;
-    using UnityEngine;
-    using Util.Math;
-    
     /// <summary>
     /// An alternative implementation of <see cref="Vector2"/> to support doubles instead of floats. Only functionality
     /// required by one of the algorithms using this class is implemented.
@@ -51,12 +50,12 @@
         {
             return Cross(this, other);
         }
-        
+
         public static double Cross(Vector2D a, Vector2D b)
         {
             return (a.x * b.y) - (a.y * b.x);
         }
-        
+
         public double Dot(Vector2D other)
         {
             return Dot(this, other);
@@ -66,7 +65,7 @@
         {
             return a.x * b.x + a.y * b.y;
         }
-        
+
         public Vector2D Interpolate(double tau, Vector2D to)
         {
             return Interpolate(this, tau, to);
@@ -86,7 +85,7 @@
         {
             return this.x.GetHashCode() ^ this.y.GetHashCode() << 2;
         }
-        
+
         /// <summary>
         ///   <para>Returns true if the given vector is exactly equal to this vector.</para>
         /// </summary>
@@ -98,7 +97,7 @@
             {
                 return false;
             }
-            
+
             return this.Equals(other1);
         }
 

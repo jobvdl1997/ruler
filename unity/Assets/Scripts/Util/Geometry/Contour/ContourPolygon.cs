@@ -1,14 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using UnityEngine;
 using Util.Geometry.Polygon;
 
 namespace Util.Geometry.Contour
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using UnityEngine;
-    using Util.Math;
-
     /// <summary>
     /// A contour polygon as specified in the paper by Martinez et al. (2013):
     /// Each contour is a simple polygon and the edges of the contours are interior
@@ -45,12 +43,12 @@ namespace Util.Geometry.Contour
         {
             get { return Contours.Aggregate(0, (acc, contour) => acc + contour.VertexCount); }
         }
-        
+
         public ICollection<Vector2> Vertices
         {
             get { return Contours.SelectMany(v => v.Vertices).Select(v => v.Vector2).ToList(); }
         }
-        
+
         public ICollection<LineSegment> Segments
         {
             get { return Contours.SelectMany(v => v.Segments).ToList(); }
@@ -70,13 +68,10 @@ namespace Util.Geometry.Contour
         {
             Contours.Add(c);
         }
-        
+
         public Contour this[int index]
         {
-            get
-            {
-                return Contours[index];
-            }
+            get { return Contours[index]; }
         }
 
         public void Join(ContourPolygon pol)
@@ -103,7 +98,11 @@ namespace Util.Geometry.Contour
             get { return Contours.Aggregate(0f, (acc, contour) => acc + contour.Area); }
         }
 
-        public string Visualize()
+        /// <summary>
+        /// This method creates lines that can be used in a LaTeX tikzpicture environment to visualize the polygon.
+        /// </summary>
+        /// <returns></returns>
+        public string TikzFormat()
         {
             var result = new StringBuilder();
             foreach (var contour in Contours)
@@ -120,38 +119,15 @@ namespace Util.Geometry.Contour
             return result.ToString();
         }
 
-        public string PolygonFormat()
-        {
-            var result = new StringBuilder();
-            result.AppendFormat("{0}\n", NumberOfContours);
-            foreach (var contour in Contours) // Write the contours
-            {
-                result.AppendFormat("{0}\n", VertexCount);
-                foreach (var point in contour.Vertices)
-                {
-                    result.AppendFormat("\t{0:N18} {1:N18}\n", point.x, point.y);
-                }
-            }
-
-            for (int i = 0; i < Contours.Count; i++) // Write the holes of every contour
-            {
-                var contour = Contours[i];
-                
-                if (contour.Holes.Count == 0)
-                {
-                    continue;
-                }
-
-                result.AppendFormat("{0}: {1}\n", i, string.Join(" ", contour.Holes.Select(v => v.ToString()).ToArray()));
-            }
-
-            return result.ToString();
-        }
-
-        public string GeoJson()
+        /// <summary>
+        /// This method creates a GeoJSON string that can be used in e.g. QGis to visualize the polygon.
+        /// </summary>
+        /// <returns></returns>
+        public string GeoJsonFormat()
         {
             var builder = new StringBuilder();
-            builder.Append("{ \"type\": \"Feature\", \"properties\": {}, \"geometry\": { \"type\": \"Polygon\", \"coordinates\": [");
+            builder.Append(
+                "{ \"type\": \"Feature\", \"properties\": {}, \"geometry\": { \"type\": \"Polygon\", \"coordinates\": [");
             var firstContour = true;
             foreach (var contour in Contours)
             {
@@ -165,103 +141,105 @@ namespace Util.Geometry.Contour
                 }
 
                 builder.Append("[");
-                
+
                 foreach (var vertex in contour.Vertices)
                 {
                     builder.AppendFormat("[{0},{1}], ", vertex.x, vertex.y);
                 }
+
                 // The first and last coordinates are equivalent in GeoJSON
                 builder.AppendFormat("[{0},{1}]", contour.Vertices[0].x, contour.Vertices[0].y);
-                
+
                 builder.Append("]");
             }
+
             builder.AppendLine("]}}");
             return builder.ToString();
         }
 
         public bool Equals(IPolygon2D other)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public Vector2? Next(Vector2 pos)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public Vector2? Prev(Vector2 pos)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void AddVertex(Vector2 pos)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void AddVertexFirst(Vector2 pos)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void AddVertexAfter(Vector2 pos, Vector2 after)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void RemoveVertex(Vector2 pos)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void RemoveFirst()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void RemoveLast()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void Clear()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public bool ContainsInside(Vector2 pos)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public bool ContainsVertex(Vector2 pos)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public bool IsConvex()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public bool IsSimple()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public bool IsClockwise()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void Reverse()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         Rect IPolygon2D.BoundingBox(float margin)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

@@ -90,7 +90,6 @@ namespace Util.Algorithms
             {
                 if (!Events.Delete(ev))
                 {
-                    Debug.Log((Events as AATree<E>).Graphviz());
                     throw new ArgumentException("Failed to delete event " + RuntimeHelpers.GetHashCode(ev) + " - " + ev);
                 }
 

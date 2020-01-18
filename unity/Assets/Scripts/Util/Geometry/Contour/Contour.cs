@@ -1,12 +1,8 @@
-﻿using System.Collections;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Util.Geometry.Contour
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using UnityEngine;
-    using Util.Math;
-
     public class Contour
     {
         /// <summary>
@@ -87,7 +83,11 @@ namespace Util.Geometry.Contour
 
         public ICollection<LineSegment> Segments
         {
-            get { return Enumerable.Range(0, VertexCount).Select(Segment).Select(v => new LineSegment(v[0].Vector2, v[1].Vector2)).ToList(); }
+            get
+            {
+                return Enumerable.Range(0, VertexCount).Select(Segment)
+                    .Select(v => new LineSegment(v[0].Vector2, v[1].Vector2)).ToList();
+            }
         }
 
         public List<Vector2D> Segment(int i)

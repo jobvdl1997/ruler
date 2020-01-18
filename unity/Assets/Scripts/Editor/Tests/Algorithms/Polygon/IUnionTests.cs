@@ -1,16 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Util.Geometry.Contour;
+using NUnit.Framework;
+using UnityEngine;
+using Util.Geometry.Polygon;
+using Util.Math;
 
 namespace Util.Algorithms.Polygon.Tests
 {
-    using System.Collections.Generic;
-    using NUnit.Framework;
-    using UnityEngine;
-    using Util.Geometry.Polygon;
-    using Math;
-
     [TestFixture(typeof(UnionNaive))]
     [TestFixture(typeof(UnionSweepLine))]
     public class IUnionTests<TUnion> where TUnion : IUnion, new()
@@ -195,7 +192,6 @@ namespace Util.Algorithms.Polygon.Tests
         [Test]
         public void UnionTest3()
         {
-            // TODO: Something similar to this fails in the game, but not yet reproducible
             var polygon0 = new Polygon2D(new List<Vector2>
             {
                 new Vector2(4.00124f, -0.9741771f), new Vector2(1.329107f, 0.0009262562f),
@@ -216,6 +212,9 @@ namespace Util.Algorithms.Polygon.Tests
 
             Assert.AreEqual(35.57237, unionResult.Area, MathUtil.EPS * 100);
         }
+
+        // All following unit tests use base64 strings because this is the easiest way to transfer a failing case in the
+        // game to a unit test while preserving the exact precision because these usually fail because of robustness issues.
 
         [Test]
         public void UnionTest4()
@@ -336,11 +335,12 @@ namespace Util.Algorithms.Polygon.Tests
                 new Vector2(BitConverter.ToSingle(Convert.FromBase64String("fivAPw=="), 0),
                     BitConverter.ToSingle(Convert.FromBase64String("XukvQA=="), 0)),
             });
-            
+
             var polygon2Ds = new List<Polygon2D> {subject, clipping};
             var unionResult = m_union.Union(polygon2Ds);
 
             Assert.Greater(unionResult.Area, 0);
+            Assert.AreEqual(22.53488, unionResult.Area, 100 * MathUtil.EPS);
         }
     }
 }

@@ -738,6 +738,10 @@ namespace Util.DataStructures.BST
             return string.Format("Root: {0}", Root);
         }
 
+        /// <summary>
+        /// This method creates a Graphviz visualization of the tree which can be used to visually inspect the tree.
+        /// </summary>
+        /// <returns></returns>
         public string Graphviz()
         {
             var builder = new StringBuilder();
