@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using JetBrains.Annotations;
 using UnityEngine;
 using Util.DataStructures.BST;
@@ -136,9 +134,6 @@ namespace Util.Algorithms.Polygon
                     contourId++;
                 }
 
-#if UNITY_DEBUG
-                Debug.Log("contour = " + Subject.Contours[i].VertexCount);
-#endif
                 for (int j = 0; j < Subject.Contours[i].VertexCount; j++)
                 {
                     CreateEvents(Subject.Contours[i].Segment(j), PolygonType.Subject, contourId,
@@ -154,20 +149,12 @@ namespace Util.Algorithms.Polygon
                     contourId++;
                 }
 
-#if UNITY_DEBUG
-                Debug.Log("contour = " + Clipping.Contours[i].VertexCount);
-#endif
-
                 for (int j = 0; j < Clipping.Contours[i].VertexCount; j++)
                 {
                     CreateEvents(Clipping.Contours[i].Segment(j), PolygonType.Clipping, contourId,
                         Subject.Contours[i].External && Operation != OperationType.Difference, events);
                 }
             }
-
-#if UNITY_DEBUG
-            Debug.Log("Total number of events = " + events.Count);
-#endif
 
             return events;
         }
@@ -185,10 +172,7 @@ namespace Util.Algorithms.Polygon
         {
             var point1 = segment[0];
             var point2 = segment[1];
-            
-#if UNITY_DEBUG
-            Debug.Log("creating event for " + VT(segment.Point1) + " to " + VT(segment.Point2));
-#endif
+
             var event1 = new SweepEvent(point1, false, null, polygonType);
             var event2 = new SweepEvent(point2, false, event1, polygonType);
             event1.OtherEvent = event2;
@@ -209,9 +193,6 @@ namespace Util.Algorithms.Polygon
             // The segment could be ordered the wrong way around, so we need to set the IsStart field properly
             if (SweepEvent.CompareTo(event1, event2) > 0)
             {
-#if UNITY_DEBUG
-                Debug.Log("Oops " + event1 + " and " + event2);
-#endif
                 event2.IsStart = true;
             }
             else
@@ -225,15 +206,6 @@ namespace Util.Algorithms.Polygon
 
         private void HandleEvent(IBST<SweepEvent> events, IBST<StatusItem> status, SweepEvent ev)
         {
-            /*foreach (var ss in events)
-            {
-                Debug.Log(string.Format("{0} - {1}", RuntimeHelpers.GetHashCode(ss), ss));
-            }*/
-
-#if UNITY_DEBUG
-            Debug.Log(string.Format("Handling event {0}, {1}", ev, events.Count));
-#endif
-
             ResultEvents.Add(ev);
 
             // Optimization 2
@@ -261,9 +233,6 @@ namespace Util.Algorithms.Polygon
                 StatusItem next;
                 if (status.FindNextBiggest(ev.StatusItem, out next))
                 {
-#if UNITY_DEBUG
-                    Debug.Log("next found " + next.SweepEvent);
-#endif
                     // Process a possible intersection between "ev" and its next neighbor in status
                     if (PossibleIntersection(ev, next.SweepEvent, events) == 2)
                     {
@@ -275,9 +244,6 @@ namespace Util.Algorithms.Polygon
                 // Process a possible intersection between "ev" and its previous neighbor in status
                 if (prevFound)
                 {
-#if UNITY_DEBUG
-                    Debug.Log("prev found " + prev.SweepEvent);
-#endif
                     if (PossibleIntersection(prev.SweepEvent, ev, events) == 2)
                     {
                         StatusItem prevprev;
@@ -302,9 +268,6 @@ namespace Util.Algorithms.Polygon
 
                 if (nextFound && prevFound)
                 {
-#if UNITY_DEBUG
-                    Debug.Log("next and prev found");
-#endif
                     PossibleIntersection(prev.SweepEvent, next.SweepEvent, events);
                 }
             }
@@ -375,11 +338,6 @@ namespace Util.Algorithms.Polygon
 
         private int PossibleIntersection(SweepEvent ev1, SweepEvent ev2, IBST<SweepEvent> events)
         {
-#if UNITY_DEBUG
-            Debug.Log(string.Format("Finding intersections between [{0}-{1}] and [{2}-{3}]", VT(ev1.Pos),
-                VT(ev1.OtherEvent.Pos), VT(ev2.Pos), VT(ev2.OtherEvent.Pos)));
-#endif
-
             var inter = Intersect(ev1.Point, ev1.OtherEvent.Point, ev2.Point, ev2.OtherEvent.Point);
 
             var nIntersections = inter != null ? inter.Count : 0;
@@ -389,18 +347,10 @@ namespace Util.Algorithms.Polygon
                 return 0; // no intersection
             }
 
-#if UNITY_DEBUG
-            Debug.Log(string.Format("Number of intersections = {0} [{1}-{2}] [{3}-{4}]", nIntersections, VT(ev1.Pos),
-                VT(ev1.OtherEvent.Pos), VT(ev2.Pos), VT(ev2.OtherEvent.Pos)));
-#endif
-
             // If the intersection is between two endpoints
             if (nIntersections == 1 && (ev1.Point.Equals(ev2.Point) ||
                                         ev1.OtherEvent.Point.Equals(ev2.OtherEvent.Point)))
             {
-#if UNITY_DEBUG
-                Debug.Log("skipping");
-#endif
                 return 0; // the line segments intersect at an endpoint of both line segments
             }
 
@@ -414,28 +364,16 @@ namespace Util.Algorithms.Polygon
             // The line segments associated to ev1 and ev2 intersect
             if (nIntersections == 1)
             {
-#if UNITY_DEBUG
-                Debug.Log("not skipping " + Vector2.Distance(ev1.Pos, ev2.Pos));
-#endif
                 var intersectionPoint = inter[0];
-#if UNITY_DEBUG
-                Debug.Log(VT(intersectionPoint));
-#endif
                 if (!ev1.Point.Equals(intersectionPoint) && !ev1.OtherEvent.Point.Equals(intersectionPoint)
                 ) // If the intersection point is not an endpoint of ev1.Segment
                 {
-#if UNITY_DEBUG
-                    Debug.Log("not an endpoint 1");
-#endif
                     DivideSegment(ev1, intersectionPoint, events);
                 }
 
                 if (!ev2.Point.Equals(intersectionPoint) && !ev2.OtherEvent.Point.Equals(intersectionPoint)
                 ) // If the intersection point is not an endpoint of ev2.Segment
                 {
-#if UNITY_DEBUG
-                    Debug.Log("not an endpoint 2");
-#endif
                     DivideSegment(ev2, intersectionPoint, events);
                 }
 
@@ -517,19 +455,11 @@ namespace Util.Algorithms.Polygon
             // "Left event" of the "right line segment" resulting from dividing ev.Segment
             var l = new SweepEvent(pos, true, ev.OtherEvent, ev.PolygonType);
 
-#if UNITY_DEBUG
-            Debug.Log(string.Format("Dividing segment: le = {0}, le.otherEvent = {1}, r = {2}, l = {3}", ev,
-                ev.OtherEvent, r, l));
-#endif
-
             r.ContourId = l.ContourId = ev.ContourId;
 
             if (SweepEvent.CompareTo(l, ev.OtherEvent) > 0
             ) // Avoid a rounding error. The left event would be processed after the right event
             {
-#if UNITY_DEBUG
-                Debug.Log("Oops2");
-#endif
                 ev.OtherEvent.IsStart = true;
                 l.IsStart = false;
             }
@@ -579,36 +509,9 @@ namespace Util.Algorithms.Polygon
                 }
             }
 
-            var result = new StringBuilder();
-            SweepEvent lastEvent = null;
-            var current = new List<int>();
-            foreach (var resultEvent in resultEvents)
-            {
-                current.Add(resultEvent.PositionInResult);
-                if (lastEvent != null && lastEvent.Point.Equals(resultEvent.Point))
-                {
-                    continue;
-                }
-
-                result.AppendFormat("\\node[draw] at ({0:N9},{1:N9}) {{{2}}};\n", resultEvent.Point.x, resultEvent.Point.y,
-                    string.Join(",", current.Select(x => x.ToString()).ToArray()));
-
-#if UNITY_DEBUG
-                Debug.Log(resultEvent.ToString());
-#endif
-
-                lastEvent = resultEvent;
-                current.Clear();
-            }
-
-#if UNITY_DEBUG
-            Debug.Log(result.ToString());
-#endif
-
             var processed = new BitArray(resultEvents.Count);
-            // var processed = Enumerable.Repeat(false, resultEvents.Count).ToList();
-            // var depth = new List<int>();
-            // var holeOf = new List<int>();
+            var depth = new List<int>();
+            var holeOf = new List<int>();
             for (int i = 0; i < resultEvents.Count; i++)
             {
                 if (processed[i])
@@ -619,11 +522,10 @@ namespace Util.Algorithms.Polygon
                 var contour = new Contour();
                 Result.Add(contour);
                 var contourId = Result.NumberOfContours - 1;
-                /*depth.Add(0);
+                depth.Add(0);
                 holeOf.Add(-1);
                 if (resultEvents[i].PreviousInResult != null)
                 {
-                    Debug.Log("previous in result!!");
                     var lowerContourId = resultEvents[i].PreviousInResult.ContourId;
                     if (!resultEvents[i].PreviousInResult.ResultInOut)
                     {
@@ -639,7 +541,7 @@ namespace Util.Algorithms.Polygon
                         depth[contourId] = depth[lowerContourId];
                         contour.External = false;
                     }
-                }*/
+                }
 
                 var pos = i;
                 var initial = resultEvents[i].Point;
@@ -658,18 +560,9 @@ namespace Util.Algorithms.Polygon
                         resultEvents[pos].OtherEvent.ContourId = contourId;
                     }
 
-#if UNITY_DEBUG
-                    Debug.Log("poss = " + pos);
-#endif
                     pos = resultEvents[pos].PositionInResult;
-#if UNITY_DEBUG
-                    Debug.Log("positionInResult = " + pos);
-#endif
                     processed[pos] = true;
                     contour.AddVertex(resultEvents[pos].Point);
-#if UNITY_DEBUG
-                    Debug.Log("adding vertex " + VT(resultEvents[pos].Pos));
-#endif
                     pos = NextPos(pos, resultEvents, processed, i);
                 }
 
@@ -678,20 +571,15 @@ namespace Util.Algorithms.Polygon
                 processed[pos] = processed[resultEvents[pos].PositionInResult] = true;
                 resultEvents[pos].OtherEvent.ResultInOut = true;
                 resultEvents[pos].OtherEvent.ContourId = contourId;
-                /*if ((depth[contourId] & 1) != 0)
+                if ((depth[contourId] & 1) != 0)
                 {
                     contour.ChangeOrientation();
-                }*/
+                }
             }
         }
 
         private int NextPos(int pos, List<SweepEvent> resultEvents, BitArray processed, int origIndex)
         {
-#if UNITY_DEBUG
-            Debug.Log(string.Format("origIndex = {0}, pos = {1}, count = {2}, processed = ({3})", origIndex, pos,
-                resultEvents.Count,
-                string.Join(", ", processed.Cast<bool>().Select(v => v ? "true" : "false").ToArray())));
-#endif
             var newPos = pos + 1;
             while (newPos < resultEvents.Count && resultEvents[newPos].Point.Equals(resultEvents[pos].Point))
             {
@@ -704,15 +592,9 @@ namespace Util.Algorithms.Polygon
             }
 
             newPos = pos - 1;
-#if UNITY_DEBUG
-            Debug.Log(string.Format("newPos = {0}", newPos));
-#endif
             while (newPos >= origIndex && processed[newPos])
             {
                 newPos--;
-#if UNITY_DEBUG
-                Debug.Log(string.Format("newPos = {0}", newPos));
-#endif
             }
 
             return newPos;
@@ -795,12 +677,12 @@ namespace Util.Algorithms.Polygon
             {
                 if (smin == 1)
                 {
-                    return  new List<Vector2D> {ToPoint(a1, smin > 0 ? smin : 0, va)};
+                    return new List<Vector2D> {ToPoint(a1, smin > 0 ? smin : 0, va)};
                 }
 
                 if (smax == 0)
                 {
-                    return  new List<Vector2D> {ToPoint(a1, smax < 1 ? smax : 1, va)};
+                    return new List<Vector2D> {ToPoint(a1, smax < 1 ? smax : 1, va)};
                 }
 
                 return new List<Vector2D>
@@ -935,14 +817,6 @@ namespace Util.Algorithms.Polygon
             }
 
             /// <summary>
-            /// The line segment associated to this event
-            /// </summary>
-            // public LineSegment Segment
-            // {
-            //     get { return new LineSegment(Pos, OtherEvent.Pos); }
-            // }
-
-            /// <summary>
             /// CompareTo is used for sorting the sweep events in the event BST.
             /// </summary>
             /// <param name="other"></param>
@@ -1066,7 +940,7 @@ namespace Util.Algorithms.Polygon
             {
                 return string.Format(
                     "{0} ({1}) S:[{2} - {3}] ({4}) ({5})",
-                    VT(Point), IsStart ? "left" : "right", VT(Point), VT(OtherEvent.Point),
+                    Point, IsStart ? "left" : "right", Point, OtherEvent.Point,
                     PolygonType.ToString().ToUpper(),
                     EdgeType.ToString().ToUpper()
                 );
@@ -1096,6 +970,11 @@ namespace Util.Algorithms.Polygon
             {
                 throw new NotImplementedException();
             }
+
+            public override string ToString()
+            {
+                return string.Format("StatusItem ({0})", SweepEvent);
+            }
         }
 
         public enum PolygonType
@@ -1118,11 +997,6 @@ namespace Util.Algorithms.Polygon
             Union,
             Difference,
             Xor
-        }
-
-        private static string VT(Vector2D v)
-        {
-            return string.Format("({0:N9},{1:N9})", v.x, v.y);
         }
     }
 }
