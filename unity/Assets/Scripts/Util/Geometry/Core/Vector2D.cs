@@ -3,8 +3,11 @@
     using System;
     using UnityEngine;
     using Util.Math;
-
-   
+    
+    /// <summary>
+    /// An alternative implementation of <see cref="Vector2"/> to support doubles instead of floats. Only functionality
+    /// required by one of the algorithms using this class is implemented.
+    /// </summary>
     public class Vector2D : IEquatable<Vector2D>
     {
         /// <summary>
@@ -43,7 +46,37 @@
         {
             return new Vector2D(a.x - b.x, a.y - b.y);
         }
+
+        public double Cross(Vector2D other)
+        {
+            return Cross(this, other);
+        }
         
+        public static double Cross(Vector2D a, Vector2D b)
+        {
+            return (a.x * b.y) - (a.y * b.x);
+        }
+        
+        public double Dot(Vector2D other)
+        {
+            return Dot(this, other);
+        }
+
+        public static double Dot(Vector2D a, Vector2D b)
+        {
+            return a.x * b.x + a.y * b.y;
+        }
+        
+        public Vector2D Interpolate(double tau, Vector2D to)
+        {
+            return Interpolate(this, tau, to);
+        }
+
+        public static Vector2D Interpolate(Vector2D start, double tau, Vector2D end)
+        {
+            return new Vector2D(start.x + tau * end.x, start.y + tau * end.y);
+        }
+
         public override string ToString()
         {
             return string.Format("({0:F1}, {1:F1})", this.x, this.y);

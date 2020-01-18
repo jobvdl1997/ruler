@@ -2,40 +2,72 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using Util.DataStructures.BST;
 using Util.Geometry;
 using Util.Geometry.Contour;
+using Util.Geometry.Polygon;
 using Util.Math;
 
 namespace Util.Algorithms.Polygon
 {
     /// <summary>
-    /// Implements the <see cref="Union"/> method by using a planeSweep approach
+    /// Martinez is an implementation of a binary operation on polygons using the algorithm published by Martinez
+    /// et al. in "A simple algorithm for Boolean operations on polygons" (https://doi.org/10.1016/j.advengsoft.2013.04.004)
+    ///
+    /// The implementation is based on the public domain C++ implementation published by the authors of the paper
+    /// at http://www4.ujaen.es/~fmartin/bool_op.html with modifications to improve robustness, since the published
+    /// C++ implementation is not robust.
+    ///
+    /// To improve robustness, the algorithm uses doubles instead of floats, as this reduces the number of edge
+    /// cases significantly. Moreover, it might seem counterintuitive that EqualsEps is never used and always != 0
+    /// and the like are used, but this is on purpose; finding an extra intersection is much less problematic than
+    /// not finding an intersection where there should not be one.
+    ///
+    /// To use this algorithm for the union of <see cref="Polygon2D"/>, see <see cref="UnionSweepLine"/>.
     /// </summary>
     public class Martinez : SweepLine<Martinez.SweepEvent, Martinez.StatusItem>
     {
-        // Input properties
+        /// <summary>
+        /// The operation that is being executed. Based on this, the resulting polygon changes.
+        /// </summary>
         private OperationType Operation { get; set; }
+
+        /// <summary>
+        /// The subject polygon.
+        /// </summary>
         private ContourPolygon Subject { get; set; }
+
+        /// <summary>
+        /// The clipping polygon.
+        /// </summary>
         private ContourPolygon Clipping { get; set; }
 
-        // Result properties
         /// <summary>
         /// The ResultEvents contains all events in-order that they were encountered.
         /// </summary>
         private List<SweepEvent> ResultEvents { get; set; }
 
-        public ContourPolygon Result { get; private set; }
-
-        // Helper properties (cache etc.)
-        private float RightBound { get; set; }
+        /// <summary>
+        /// The bounding box of the subject polygon.
+        /// </summary>
         private Rect SubjectBoundingBox { get; set; }
+
+        /// <summary>
+        /// The bounding box of the clipping polygon.
+        /// </summary>
         private Rect ClippingBoundingBox { get; set; }
 
         /// <summary>
-        /// Creates a new object for executing a single boolean operation using the Martinez algorithm.
+        /// The minimum right bound of the subject and clipping bounding boxes.
+        /// </summary>
+        private double RightBound { get; set; }
+
+        /// <summary>
+        /// Creates a new object for executing a single boolean operation using the Martinez algorithm. Usually, the
+        /// next call will be a call to <see cref="Run"/>. The created object can only be used for executing the algorithm
+        /// once.
         /// </summary>
         /// <param name="subject">The subject polygon. It must adhere to the orientation as specified in the documentation of ContourPolygon.</param>
         /// <param name="clipping">The clipping polygon. It must adhere to the orientation as specified in the documentation of ContourPolygon.</param>
@@ -47,17 +79,22 @@ namespace Util.Algorithms.Polygon
             Operation = operation;
         }
 
+        /// <summary>
+        /// Run will run the algorithm and return the result.
+        /// </summary>
+        /// <returns></returns>
         public ContourPolygon Run()
         {
-            Result = new ContourPolygon();
             ResultEvents = new List<SweepEvent>();
 
             SubjectBoundingBox = Subject.BoundingBox();
             ClippingBoundingBox = Clipping.BoundingBox();
             RightBound = System.Math.Min(SubjectBoundingBox.xMax, ClippingBoundingBox.xMax);
-            if (ComputeTrivialResult()) // Trivial cases can be quickly resolved without sweeping the plane
+
+            ContourPolygon result;
+            if (ComputeTrivialResult(out result)) // Trivial cases can be quickly resolved without sweeping the plane
             {
-                return Result;
+                return result;
             }
 
             var events = CreateEvents();
@@ -67,16 +104,14 @@ namespace Util.Algorithms.Polygon
 
             VerticalSweep(HandleEvent);
 
-            ConnectEdges();
-
-            return Result;
+            return ConnectEdges();
         }
 
         /// <summary>
         /// Computes a trivial result
         /// </summary>
         /// <returns>Whether a trivial result could be computed</returns>
-        private bool ComputeTrivialResult()
+        private bool ComputeTrivialResult(out ContourPolygon result)
         {
             // When one of the polygons is empty, the result is trivial
             if (Subject.VertexCount == 0 || Clipping.VertexCount == 0)
@@ -84,13 +119,17 @@ namespace Util.Algorithms.Polygon
                 switch (Operation)
                 {
                     case OperationType.Difference:
-                        Result = Subject;
+                        result = Subject;
                         break;
                     case OperationType.Union:
                     case OperationType.Xor:
-                        Result = Subject.VertexCount > 0 ? Subject : Clipping;
+                        result = Subject.VertexCount > 0 ? Subject : Clipping;
                         break;
-                    // Intersection is empty, so we don't need to do anything here
+                    case OperationType.Intersection:
+                        result = new ContourPolygon();
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid Operation");
                 }
 
                 return true;
@@ -103,19 +142,24 @@ namespace Util.Algorithms.Polygon
                 switch (Operation)
                 {
                     case OperationType.Difference:
-                        Result = Subject;
+                        result = Subject;
                         break;
                     case OperationType.Union:
                     case OperationType.Xor:
-                        Result = Subject;
-                        Result.Join(Clipping);
+                        result = Subject;
+                        result.Join(Clipping);
                         break;
-                    // Intersection is empty again, so no need to do anything
+                    case OperationType.Intersection:
+                        result = new ContourPolygon();
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid Operation");
                 }
 
                 return true;
             }
 
+            result = null;
             return false;
         }
 
@@ -126,33 +170,19 @@ namespace Util.Algorithms.Polygon
         private List<SweepEvent> CreateEvents()
         {
             var events = new List<SweepEvent>();
-            int contourId = 0;
             for (int i = 0; i < Subject.NumberOfContours; i++)
             {
-                if (Subject.Contours[i].External)
-                {
-                    contourId++;
-                }
-
                 for (int j = 0; j < Subject.Contours[i].VertexCount; j++)
                 {
-                    CreateEvents(Subject.Contours[i].Segment(j), PolygonType.Subject, contourId,
-                        Subject.Contours[i].External,
-                        events);
+                    CreateEvents(Subject.Contours[i].Segment(j), PolygonType.Subject, events);
                 }
             }
 
             for (int i = 0; i < Clipping.NumberOfContours; i++)
             {
-                if (Subject.Contours[i].External && Operation != OperationType.Difference)
-                {
-                    contourId++;
-                }
-
                 for (int j = 0; j < Clipping.Contours[i].VertexCount; j++)
                 {
-                    CreateEvents(Clipping.Contours[i].Segment(j), PolygonType.Clipping, contourId,
-                        Subject.Contours[i].External && Operation != OperationType.Difference, events);
+                    CreateEvents(Clipping.Contours[i].Segment(j), PolygonType.Clipping, events);
                 }
             }
 
@@ -162,12 +192,10 @@ namespace Util.Algorithms.Polygon
         /// <summary>
         /// Creates the events for a segment.
         /// </summary>
-        /// <param name="segment"></param>
+        /// <param name="segment">A list consisting of two points defining an edge</param>
         /// <param name="polygonType"></param>
-        /// <param name="contourId"></param>
-        /// <param name="externalContour"></param>
         /// <param name="list">The list to add the events to</param>
-        private void CreateEvents(List<Vector2D> segment, PolygonType polygonType, int contourId, bool externalContour,
+        private void CreateEvents(IList<Vector2D> segment, PolygonType polygonType,
             ICollection<SweepEvent> list)
         {
             var point1 = segment[0];
@@ -179,15 +207,8 @@ namespace Util.Algorithms.Polygon
 
             if (point1.Equals(point2))
             {
-                // Skip collapsed edges, or it breaks
+                // 0-length segments are irrelevant for us since they will never result in intersections
                 return;
-            }
-
-            event1.ContourId = event2.ContourId = contourId;
-
-            if (!externalContour)
-            {
-                event1.External = event2.External = false;
             }
 
             // The segment could be ordered the wrong way around, so we need to set the IsStart field properly
@@ -212,7 +233,8 @@ namespace Util.Algorithms.Polygon
             if ((Operation == OperationType.Intersection && ev.Point.x > RightBound) ||
                 (Operation == OperationType.Difference && ev.Point.x > SubjectBoundingBox.xMax))
             {
-                // We need to connect edges now, so just clear all events
+                // We need to connect edges now, so just clear all events. This will result in us immediately
+                // going to ConnectEdges() since there are no more events to handle.
                 InitializeEvents(new List<SweepEvent>());
                 return;
             }
@@ -338,9 +360,8 @@ namespace Util.Algorithms.Polygon
 
         private int PossibleIntersection(SweepEvent ev1, SweepEvent ev2, IBST<SweepEvent> events)
         {
-            var inter = Intersect(ev1.Point, ev1.OtherEvent.Point, ev2.Point, ev2.OtherEvent.Point);
-
-            var nIntersections = inter != null ? inter.Count : 0;
+            Vector2D intersectionPoint;
+            var nIntersections = FindIntersections(ev1.Point, ev1.OtherEvent.Point, ev2.Point, ev2.OtherEvent.Point, out intersectionPoint);
 
             if (nIntersections == 0)
             {
@@ -364,7 +385,6 @@ namespace Util.Algorithms.Polygon
             // The line segments associated to ev1 and ev2 intersect
             if (nIntersections == 1)
             {
-                var intersectionPoint = inter[0];
                 if (!ev1.Point.Equals(intersectionPoint) && !ev1.OtherEvent.Point.Equals(intersectionPoint)
                 ) // If the intersection point is not an endpoint of ev1.Segment
                 {
@@ -382,11 +402,11 @@ namespace Util.Algorithms.Polygon
 
             // The line segments associated to ev1 and ev2 overlap
             var sortedEvents = new List<SweepEvent>();
-            var leftCoincide = false;
-            var rightCoincide = false;
+            var leftEqual = false;
+            var rightEqual = false;
             if (ev1.Point.Equals(ev2.Point))
             {
-                leftCoincide = true;
+                leftEqual = true;
             }
             else if (SweepEvent.CompareTo(ev1, ev2) == 1)
             {
@@ -401,7 +421,7 @@ namespace Util.Algorithms.Polygon
 
             if (ev1.OtherEvent.Point.Equals(ev2.OtherEvent.Point))
             {
-                rightCoincide = true;
+                rightEqual = true;
             }
             else if (SweepEvent.CompareTo(ev1.OtherEvent, ev2.OtherEvent) == 1)
             {
@@ -414,12 +434,12 @@ namespace Util.Algorithms.Polygon
                 sortedEvents.Add(ev2.OtherEvent);
             }
 
-            if ((leftCoincide && rightCoincide) || leftCoincide)
+            if (leftEqual)
             {
                 // Both line segments are equal or share the left endpoint
                 ev2.EdgeType = EdgeType.NonContributing;
                 ev1.EdgeType = (ev2.InOut == ev1.InOut) ? EdgeType.SameTransition : EdgeType.DifferentTransition;
-                if (leftCoincide && !rightCoincide)
+                if (!rightEqual)
                 {
                     DivideSegment(sortedEvents[1].OtherEvent, sortedEvents[0].Point, events);
                 }
@@ -427,7 +447,7 @@ namespace Util.Algorithms.Polygon
                 return 2;
             }
 
-            if (rightCoincide)
+            if (rightEqual)
             {
                 // The line segments share the right endpoint
                 DivideSegment(sortedEvents[0], sortedEvents[1].Point, events);
@@ -455,8 +475,6 @@ namespace Util.Algorithms.Polygon
             // "Left event" of the "right line segment" resulting from dividing ev.Segment
             var l = new SweepEvent(pos, true, ev.OtherEvent, ev.PolygonType);
 
-            r.ContourId = l.ContourId = ev.ContourId;
-
             if (SweepEvent.CompareTo(l, ev.OtherEvent) > 0
             ) // Avoid a rounding error. The left event would be processed after the right event
             {
@@ -470,8 +488,10 @@ namespace Util.Algorithms.Polygon
             events.Insert(r);
         }
 
-        private void ConnectEdges()
+        private ContourPolygon ConnectEdges()
         {
+            var result = new ContourPolygon();
+
             var resultEvents = ResultEvents
                 .Where(it => (it.IsStart && it.InResult) || (!it.IsStart && it.OtherEvent.InResult)).ToList();
 
@@ -520,8 +540,8 @@ namespace Util.Algorithms.Polygon
                 }
 
                 var contour = new Contour();
-                Result.Add(contour);
-                var contourId = Result.NumberOfContours - 1;
+                result.Add(contour);
+                var contourId = result.NumberOfContours - 1;
                 depth.Add(0);
                 holeOf.Add(-1);
                 if (resultEvents[i].PreviousInResult != null)
@@ -529,14 +549,14 @@ namespace Util.Algorithms.Polygon
                     var lowerContourId = resultEvents[i].PreviousInResult.ContourId;
                     if (!resultEvents[i].PreviousInResult.ResultInOut)
                     {
-                        Result[lowerContourId].AddHole(contourId);
+                        result[lowerContourId].AddHole(contourId);
                         holeOf[contourId] = lowerContourId;
                         depth[contourId] = depth[lowerContourId] + 1;
                         contour.External = false;
                     }
-                    else if (!Result[lowerContourId].External)
+                    else if (!result[lowerContourId].External)
                     {
-                        Result[holeOf[lowerContourId]].AddHole(contourId);
+                        result[holeOf[lowerContourId]].AddHole(contourId);
                         holeOf[contourId] = holeOf[lowerContourId];
                         depth[contourId] = depth[lowerContourId];
                         contour.External = false;
@@ -576,6 +596,8 @@ namespace Util.Algorithms.Polygon
                     contour.ChangeOrientation();
                 }
             }
+
+            return result;
         }
 
         private int NextPos(int pos, List<SweepEvent> resultEvents, BitArray processed, int origIndex)
@@ -600,24 +622,20 @@ namespace Util.Algorithms.Polygon
             return newPos;
         }
 
-        private static double CrossProduct(Vector2D a, Vector2D b)
+        /// <summary>
+        /// Finds the number of intersections between two line segments. If there is exactly 1 intersection point, will
+        /// return that intersection point in intersectionPoint.
+        /// </summary>
+        /// <param name="a1"></param>
+        /// <param name="a2"></param>
+        /// <param name="b1"></param>
+        /// <param name="b2"></param>
+        /// <param name="intersectionPoint"></param>
+        /// <returns></returns>
+        private static int FindIntersections(Vector2D a1, Vector2D a2, Vector2D b1, Vector2D b2, out Vector2D intersectionPoint)
         {
-            return (a.x * b.y) - (a.y * b.x);
-        }
-
-        private static double DotProduct(Vector2D lhs, Vector2D rhs)
-        {
-            return lhs.x * rhs.x + lhs.y * rhs.y;
-        }
-
-        private static Vector2D ToPoint(Vector2D p, double s, Vector2D d)
-        {
-            return new Vector2D(p.x + s * d.x, p.y + s * d.y);
-        }
-
-        [CanBeNull]
-        private static List<Vector2D> Intersect(Vector2D a1, Vector2D a2, Vector2D b1, Vector2D b2)
-        {
+            intersectionPoint = null;
+            
             // The algorithm expects our lines in the form P + sd, where P is a point,
             // s is on the interval [0, 1], and d is a vector.
             // We are passed two points. P can be the first point of each pair. The
@@ -626,50 +644,51 @@ namespace Util.Algorithms.Polygon
             // So first, let's make our vectors:
             var va = a2 - a1;
             var vb = b2 - b1;
-            // We also define a function to convert back to regular point form:
-            // The rest is pretty much a straight port of the algorithm.
 
             var e = b1 - a1;
-            var kross = CrossProduct(va, vb);
+            var kross = va.Cross(vb);
             var sqrKross = kross * kross;
-            var sqrLenA = DotProduct(va, va);
+            var sqrLenA = va.Dot(va);
             if (sqrKross > 0)
             {
-                var s = CrossProduct(e, vb) / kross;
+                var s = e.Cross(vb) / kross;
                 if (s < 0 || s > 1)
                 {
-                    return null;
+                    return 0;
                 }
 
-                var t = CrossProduct(e, va) / kross;
+                var t = e.Cross(va) / kross;
                 if (t < 0 || t > 1)
                 {
-                    return null;
+                    return 0;
                 }
 
                 if (s == 0 || s == 1)
                 {
-                    return new List<Vector2D> {ToPoint(a1, s, va)};
+                    intersectionPoint = a1.Interpolate(s, va);
+                    return 1;
                 }
 
                 if (t == 0 || t == 1)
                 {
-                    return new List<Vector2D> {ToPoint(b1, t, vb)};
+                    intersectionPoint = b1.Interpolate(t, vb);
+                    return 1;
                 }
 
-                return new List<Vector2D> {ToPoint(a1, s, va)};
+                intersectionPoint = a1.Interpolate(s, va);
+                return 1;
             }
 
-            kross = CrossProduct(e, va);
+            kross = e.Cross(va);
             sqrKross = kross * kross;
 
             if (sqrKross > 0)
             {
-                return null;
+                return 0;
             }
 
-            var sa = DotProduct(va, e) / sqrLenA;
-            var sb = sa + DotProduct(va, vb) / sqrLenA;
+            var sa = va.Dot(e) / sqrLenA;
+            var sb = sa + va.Dot(vb) / sqrLenA;
             var smin = System.Math.Min(sa, sb);
             var smax = System.Math.Max(sa, sb);
 
@@ -677,27 +696,29 @@ namespace Util.Algorithms.Polygon
             {
                 if (smin == 1)
                 {
-                    return new List<Vector2D> {ToPoint(a1, smin > 0 ? smin : 0, va)};
+                    intersectionPoint = a1.Interpolate(smin > 0 ? smin : 0, va);
+                    return 1;
                 }
 
                 if (smax == 0)
                 {
-                    return new List<Vector2D> {ToPoint(a1, smax < 1 ? smax : 1, va)};
+                    intersectionPoint = a1.Interpolate(smax < 1 ? smax : 1, va);
+                    return 1;
                 }
 
-                return new List<Vector2D>
-                {
-                    ToPoint(a1, smin > 0 ? smin : 0, va),
-                    ToPoint(a1, smax < 1 ? smax : 1, va)
-                };
+                // There are two intersection points, but for us it's irrelevant where those intersection points
+                // are. Just FYI, to get the intersection points:
+                // a1.Interpolate(smin > 0 ? smin : 0, va),
+                // a1.Interpolate(smax < 1 ? smax : 1, va)
+                return 2;
             }
 
-            return null;
+            return 0;
         }
 
         public class SweepEvent : ISweepEvent<StatusItem>, IComparable<SweepEvent>, IEquatable<SweepEvent>
         {
-            public SweepEvent(Vector2D pos, bool isStart, SweepEvent otherEvent, PolygonType polygonType,
+            internal SweepEvent(Vector2D pos, bool isStart, SweepEvent otherEvent, PolygonType polygonType,
                 EdgeType edgeType = EdgeType.Normal)
             {
                 Point = pos;
@@ -711,7 +732,7 @@ namespace Util.Algorithms.Polygon
             }
 
             // Point associated with the event
-            public Vector2D Point { get; private set; }
+            internal Vector2D Point { get; private set; }
 
             public Vector2 Pos
             {
@@ -736,62 +757,60 @@ namespace Util.Algorithms.Polygon
             /// <summary>
             /// Other endpoint of the edge. When the edge is subdivided, this is updated.
             /// </summary>
-            public SweepEvent OtherEvent { get; set; }
+            internal SweepEvent OtherEvent { get; set; }
 
             /// <summary>
             /// Is this event associated to the Subject or Clipping polygon?
             /// </summary>
-            public PolygonType PolygonType { get; private set; }
+            internal PolygonType PolygonType { get; private set; }
 
-            public EdgeType EdgeType { get; set; }
+            internal EdgeType EdgeType { get; set; }
 
             /// <summary>
             /// Indicates if this segment determines an inside-outside transition into the polygon for
             /// a vertical ray that starts below the polygon and intersects the segment.
             /// </summary>
-            public bool InOut { get; set; }
+            internal bool InOut { get; set; }
 
             /// <summary>
             /// See InOut, but referred to the closest segment to this segment downwards in status that
             /// belongs to the other polygon. 
             /// </summary>
-            public bool OtherInOut { get; set; }
+            internal bool OtherInOut { get; set; }
 
             /// <summary>
             /// The closest edge to the segment downwards in status that belongs to the result polygon.
             /// This field is used in the second stage of the algorithm to compute child contours.
             /// </summary>
-            public SweepEvent PreviousInResult { get; set; }
+            internal SweepEvent PreviousInResult { get; set; }
 
             /// <summary>
             /// Whether this segment is in the result.
             /// </summary>
-            public bool InResult { get; set; }
+            internal bool InResult { get; set; }
 
             /// <summary>
             /// Stores the position of the segment in the Result.
             /// </summary>
-            public int PositionInResult { get; set; }
+            internal int PositionInResult { get; set; }
 
             /// <summary>
             /// Indicates if the segment determines an in-out transition into C for a vertical ray that starts
             /// below C and intersects the segment associated to this segment.
             /// </summary>
-            public bool ResultInOut { get; set; }
+            internal bool ResultInOut { get; set; }
 
             /// <summary>
             /// The ID that identifies the contour C.
             /// </summary>
-            public int ContourId { get; set; }
-
-            public bool External { get; set; }
+            internal int ContourId { get; set; }
 
             /// <summary>
             /// Determines whether the line segment is below point p
             /// </summary>
             /// <param name="p"></param>
             /// <returns>Whether the line segment is below point p</returns>
-            private bool Below(Vector2D p)
+            internal bool Below(Vector2D p)
             {
                 return IsStart
                     ? MathUtil.SignedArea(Point, OtherEvent.Point, p) > 0
@@ -803,7 +822,7 @@ namespace Util.Algorithms.Polygon
             /// </summary>
             /// <param name="p"></param>
             /// <returns>Whether the line segment is above point p</returns>
-            private bool Above(Vector2D p)
+            internal bool Above(Vector2D p)
             {
                 return !Below(p);
             }
@@ -811,7 +830,7 @@ namespace Util.Algorithms.Polygon
             /// <summary>
             /// Indicates whether the line segment is a vertical line segment
             /// </summary>
-            public bool Vertical
+            internal bool Vertical
             {
                 get { return Point.x.Equals(OtherEvent.Point.x); }
             }
@@ -824,6 +843,8 @@ namespace Util.Algorithms.Polygon
             /// <exception cref="ArgumentException"></exception>
             public int CompareTo(SweepEvent other)
             {
+                // This method is different to the static CompareTo because we require this equality checks, whereas
+                // the other method does not.
                 if (this == other)
                 {
                     return 0;
@@ -876,8 +897,41 @@ namespace Util.Algorithms.Polygon
                 return e1.PolygonType > e2.PolygonType ? 1 : -1;
             }
 
-            public static int SegmentCompare(SweepEvent le1, SweepEvent le2)
+            public bool Equals(SweepEvent other)
             {
+                throw new NotImplementedException();
+            }
+
+            public override string ToString()
+            {
+                return string.Format(
+                    "{0} ({1}) S:[{2} - {3}] ({4}) ({5})",
+                    Point, IsStart ? "left" : "right", Point, OtherEvent.Point,
+                    PolygonType.ToString().ToUpper(),
+                    EdgeType.ToString().ToUpper()
+                );
+            }
+        }
+
+        public class StatusItem : IComparable<StatusItem>, IEquatable<StatusItem>
+        {
+            internal SweepEvent SweepEvent { get; private set; }
+
+            internal StatusItem(SweepEvent sweepEvent)
+            {
+                SweepEvent = sweepEvent;
+            }
+
+            public int CompareTo(StatusItem other)
+            {
+                if (ReferenceEquals(this, other))
+                {
+                    return 0;
+                }
+
+                var le1 = this.SweepEvent;
+                var le2 = other.SweepEvent;
+
                 if (le1 == le2)
                 {
                     return 0;
@@ -899,7 +953,7 @@ namespace Util.Algorithms.Polygon
                         return le1.Point.y < le2.Point.y ? -1 : 1;
                     }
 
-                    if (CompareTo(le1, le2) == 1
+                    if (le1.CompareTo(le2) == 1
                     ) // Has the line segment associated to this been inserted into S after the line segment associated to other
                     {
                         return le2.Above(le1.Point) ? -1 : 1;
@@ -925,45 +979,10 @@ namespace Util.Algorithms.Polygon
                         return 0;
                     }
 
-                    return le1.ContourId > le2.ContourId ? 1 : -1;
+                    return RuntimeHelpers.GetHashCode(le1) > RuntimeHelpers.GetHashCode(le2) ? 1 : -1;
                 }
 
-                return CompareTo(le1, le2) == 1 ? 1 : -1;
-            }
-
-            public bool Equals(SweepEvent other)
-            {
-                return this == other;
-            }
-
-            public override string ToString()
-            {
-                return string.Format(
-                    "{0} ({1}) S:[{2} - {3}] ({4}) ({5})",
-                    Point, IsStart ? "left" : "right", Point, OtherEvent.Point,
-                    PolygonType.ToString().ToUpper(),
-                    EdgeType.ToString().ToUpper()
-                );
-            }
-        }
-
-        public class StatusItem : IComparable<StatusItem>, IEquatable<StatusItem>
-        {
-            public SweepEvent SweepEvent { get; private set; }
-
-            public StatusItem(SweepEvent sweepEvent)
-            {
-                SweepEvent = sweepEvent;
-            }
-
-            public int CompareTo(StatusItem other)
-            {
-                if (ReferenceEquals(this, other))
-                {
-                    return 0;
-                }
-
-                return SweepEvent.SegmentCompare(this.SweepEvent, other.SweepEvent);
+                return le1.CompareTo(le2) == 1 ? 1 : -1;
             }
 
             public bool Equals(StatusItem other)
@@ -983,7 +1002,7 @@ namespace Util.Algorithms.Polygon
             Clipping
         }
 
-        public enum EdgeType
+        internal enum EdgeType
         {
             Normal,
             NonContributing,
