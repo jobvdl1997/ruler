@@ -361,7 +361,8 @@ namespace Util.Algorithms.Polygon
         private int PossibleIntersection(SweepEvent ev1, SweepEvent ev2, IBST<SweepEvent> events)
         {
             Vector2D intersectionPoint;
-            var nIntersections = FindIntersections(ev1.Point, ev1.OtherEvent.Point, ev2.Point, ev2.OtherEvent.Point, out intersectionPoint);
+            var nIntersections = FindIntersections(ev1.Point, ev1.OtherEvent.Point, ev2.Point, ev2.OtherEvent.Point,
+                out intersectionPoint);
 
             if (nIntersections == 0)
             {
@@ -625,6 +626,10 @@ namespace Util.Algorithms.Polygon
         /// <summary>
         /// Finds the number of intersections between two line segments. If there is exactly 1 intersection point, will
         /// return that intersection point in intersectionPoint.
+        ///
+        /// Note that we are not using <see cref="LineSegment.Intersect(LineSegment, LineSegment)"/>'s method because
+        /// it is far too imprecise due to using a threshold of being vertical of 100*EPS, while we need exact calculations
+        /// which do not use an epsilon at all.
         /// </summary>
         /// <param name="a1"></param>
         /// <param name="a2"></param>
@@ -632,57 +637,54 @@ namespace Util.Algorithms.Polygon
         /// <param name="b2"></param>
         /// <param name="intersectionPoint"></param>
         /// <returns></returns>
-        private static int FindIntersections(Vector2D a1, Vector2D a2, Vector2D b1, Vector2D b2, out Vector2D intersectionPoint)
+        private static int FindIntersections(Vector2D a1, Vector2D a2, Vector2D b1, Vector2D b2,
+            out Vector2D intersectionPoint)
         {
             intersectionPoint = null;
-            
-            // The algorithm expects our lines in the form P + sd, where P is a point,
-            // s is on the interval [0, 1], and d is a vector.
-            // We are passed two points. P can be the first point of each pair. The
-            // vector, then, could be thought of as the distance (in x and y components)
-            // from the first point to the second point.
-            // So first, let's make our vectors:
+
+            // First, we'll create vectors that point in the direction our line segments are pointing
             var va = a2 - a1;
             var vb = b2 - b1;
 
+            // Difference between the two supporting points
             var e = b1 - a1;
             var kross = va.Cross(vb);
-            var sqrKross = kross * kross;
             var sqrLenA = va.Dot(va);
-            if (sqrKross > 0)
+            if (kross != 0) // The cross product of va and vb is zero only when the lines are parallel
             {
+                // These lines are thus not parallel, but they might still not intersect because they are line segments.
+
                 var s = e.Cross(vb) / kross;
                 if (s < 0 || s > 1)
                 {
+                    // It's not on line segment a
                     return 0;
                 }
 
                 var t = e.Cross(va) / kross;
                 if (t < 0 || t > 1)
                 {
+                    // It's not on line segment b
                     return 0;
-                }
-
-                if (s == 0 || s == 1)
-                {
-                    intersectionPoint = a1.Interpolate(s, va);
-                    return 1;
                 }
 
                 if (t == 0 || t == 1)
                 {
+                    // The intersection is on an endpoint of line segment b
                     intersectionPoint = b1.Interpolate(t, vb);
                     return 1;
                 }
+
+                // The check for line segment a is not required because then the following will just work.
 
                 intersectionPoint = a1.Interpolate(s, va);
                 return 1;
             }
 
-            kross = e.Cross(va);
-            sqrKross = kross * kross;
-
-            if (sqrKross > 0)
+            // When the vector between the two supporting points and the vector of segment a are parallel,
+            // they are the same line. Otherwise, they are merely parallel. So, if the cross product is non-zero,
+            // they are just parallel and not the same line.
+            if (e.Cross(va) != 0)
             {
                 return 0;
             }
@@ -696,13 +698,15 @@ namespace Util.Algorithms.Polygon
             {
                 if (smin == 1)
                 {
-                    intersectionPoint = a1.Interpolate(smin > 0 ? smin : 0, va);
+                    // Intersection on an endpoint of line segment a
+                    intersectionPoint = a1.Interpolate(smin, va);
                     return 1;
                 }
 
                 if (smax == 0)
                 {
-                    intersectionPoint = a1.Interpolate(smax < 1 ? smax : 1, va);
+                    // Intersection on an endpoint of line segment b
+                    intersectionPoint = a1.Interpolate(smax, va);
                     return 1;
                 }
 
@@ -713,6 +717,7 @@ namespace Util.Algorithms.Polygon
                 return 2;
             }
 
+            // The line segments are on the same line, but have no overlap.
             return 0;
         }
 
