@@ -153,19 +153,21 @@ namespace ArtGallery
         ///     can seen by one other vertex in
         ///     <paramref name="vertexes" />
         /// </returns>
-        public static bool VisibleToOtherVertex(
+        public static List<Vector2> VisibleToOtherVertex(
             List<Vector2> vertexes,
             Polygon2D polygon)
         {
-            // Remove all previous unguarded sprites first
-            Debug.Log("Removing old unguarded sprites");
-            var unguardedSprites = GameObject.FindGameObjectsWithTag("UnGuarded");
+            //Debug.Log("CALLING");
+            List<Vector2> unguardedGuards = new List<Vector2>();
+            // remove all previous unguarded sprites first
+            //Debug.Log("Removing old unguarded sprites");
+            //var unguardedSprites = GameObject.FindGameObjectsWithTag("UnGuarded");
 
-            for (var i = 0; i < unguardedSprites.Length; i++) {
-                GameObject.Destroy(unguardedSprites[i]);
-            }
+            //for (var i = 0; i < unguardedSprites.Length; i++) {
+            //    GameObject.Destroy(unguardedSprites[i]);
+            //}
 
-            bool allGuarded = true;
+            //bool allGuarded = true;
             // For each of the vertexes check if they are visible to at least
             // one other vertex
             foreach (Vector2 vertex in vertexes)
@@ -176,14 +178,16 @@ namespace ArtGallery
                 if (!VisibleToOtherVertex(vertex, otherVertexes, polygon))
                 {
                     Debug.Log(vertex + " not guarded");
-                    var unguardedIndicator = Resources.Load("Prefabs/NotGuarded") as GameObject;
-                    GameObject.Instantiate(unguardedIndicator, new Vector3(vertex.x, vertex.y, -5f), Quaternion.identity);
-                    allGuarded = false;
+                    // add it to list of unguarded guards
+                    unguardedGuards.Add(vertex);
+                    //var unguardedIndicator = Resources.Load("Prefabs/NotGuarded") as GameObject;
+                    //GameObject.Instantiate(unguardedIndicator, new Vector3(vertex.x, vertex.y, -5f), Quaternion.identity);
+                    //allGuarded = false;
                 }
             }
 
             // if every vertex can be seen by one other vertex return true
-            return allGuarded;
+            return unguardedGuards;
         }
 
         /// <summary>

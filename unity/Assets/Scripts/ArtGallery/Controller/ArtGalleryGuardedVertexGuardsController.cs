@@ -24,6 +24,10 @@ namespace ArtGallery
     /// </summary>
     public class ArtGalleryGuardedVertexGuardsController : AbstractArtGalleryController
     {
+
+        [SerializeField]
+        protected GameObject m_unguardedSpritePrefab;
+
         /// <inheritdoc />
         public override void CheckSolution()
         {
@@ -142,6 +146,8 @@ namespace ArtGallery
                 m_lighthousePrefab,
                 closestVertex,
                 Quaternion.identity) as GameObject;
+            // create unguarded sprite from prefab
+            Instantiate(m_unguardedSpritePrefab, go.transform);
 
             // add lighthouse to art gallery solution
             m_solution.AddLighthouse(go);
@@ -178,17 +184,45 @@ namespace ArtGallery
         /// </returns>
         public bool CheckGuardedGuards()
         {
-            var lightHouses = m_solution
-                              .LightHouses.Select(
+            // get current lighthouses
+            var lightHouses = m_solution.LightHouses;
+            var lightHousesList = lightHouses.Select(
                                   l => new Vector2(l.Pos.x, l.Pos.y))
                               .ToList();
 
-            bool allLighthousesAreSeen =
+            List<Vector2> unguardedLighthouses =
                 NaiveLighthouseToLighthouseVisibility.VisibleToOtherVertex(
-                    lightHouses,
+                    lightHousesList,
                     LevelPolygon);
-            Debug.Log("all guards are seen" + allLighthousesAreSeen);
+
+            bool allLighthousesAreSeen = true;
+            if (unguardedLighthouses.Count() != 0) {
+                allLighthousesAreSeen = false;
+            }
+
+            Debug.Log("all guards are seen: " + allLighthousesAreSeen);
+
+            // indicate which are unguarded, if any
+            if (!allLighthousesAreSeen) {
+                UpdateUnguardedSprites(lightHouses, unguardedLighthouses);
+            }
+
             return allLighthousesAreSeen;
+        }
+
+        /// <summary>
+        /// Indicates in game which of the guards are unguarded
+        /// </summary>
+        private void UpdateUnguardedSprites(List<ArtGalleryLightHouse> lightHouses, List<Vector2> unguardedLighthouses) {
+            //TODO: Update this with new guarded algorithm if we decide to use that
+            foreach (ArtGalleryLightHouse lighthouse in lightHouses) {
+                foreach (Vector2 unguardedLighthouse in unguardedLighthouses) {
+                    if (lighthouse.Pos.x == unguardedLighthouse.x && lighthouse.Pos.y == unguardedLighthouse.y) {
+                        // disable that lighthouse's sprite
+                    }
+                }
+            }
+
         }
     }
 }

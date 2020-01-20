@@ -272,10 +272,15 @@
                 new Vector2(0, 4)
             };
 
-            bool canSeeEachOther =
+            List<Vector2> unguarded =
                 NaiveLighthouseToLighthouseVisibility.VisibleToOtherVertex(
                     vertexes,
                     polygon);
+            bool canSeeEachOther = true;
+
+            if (unguarded.Count != 0) {
+                canSeeEachOther = false;
+            }
 
             Assert.IsTrue(canSeeEachOther);
         }
@@ -309,10 +314,15 @@
                 new Vector2(4, 2),
             };
 
-            bool canSeeEachOther =
+            List<Vector2> unguarded =
                 NaiveLighthouseToLighthouseVisibility.VisibleToOtherVertex(
                     vertexes,
                     polygon);
+            bool canSeeEachOther = true;
+
+            if (unguarded.Count != 0) {
+                canSeeEachOther = false;
+            }
 
             Assert.IsFalse(canSeeEachOther);
         }

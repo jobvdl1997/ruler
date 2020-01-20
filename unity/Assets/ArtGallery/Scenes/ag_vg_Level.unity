@@ -857,6 +857,8 @@ MonoBehaviour:
   m_lighthousePrefab: {fileID: 189480, guid: f2dc3a13ba22ce347b69b69528ffb6c3, type: 2}
   m_advanceButton: {fileID: 2135131466}
   m_lighthouseText: {fileID: 148341695}
+  m_unguardedSpritePrefab: {fileID: 189480, guid: ca78b1bba9af01b498fb2ee1b129ee2c,
+    type: 2}
 --- !u!1 &2028647603
 GameObject:
   m_ObjectHideFlags: 0
