@@ -157,19 +157,8 @@ namespace ArtGallery
             List<Vector2> vertexes,
             Polygon2D polygon)
         {
-            //Debug.Log("CALLING");
             List<Vector2> unguardedGuards = new List<Vector2>();
-            // remove all previous unguarded sprites first
-            //Debug.Log("Removing old unguarded sprites");
-            //var unguardedSprites = GameObject.FindGameObjectsWithTag("UnGuarded");
 
-            //for (var i = 0; i < unguardedSprites.Length; i++) {
-            //    GameObject.Destroy(unguardedSprites[i]);
-            //}
-
-            //bool allGuarded = true;
-            // For each of the vertexes check if they are visible to at least
-            // one other vertex
             foreach (Vector2 vertex in vertexes)
             {
                 var otherVertexes = vertexes.Where(i => i != vertex).ToList();
@@ -180,9 +169,6 @@ namespace ArtGallery
                     Debug.Log(vertex + " not guarded");
                     // add it to list of unguarded guards
                     unguardedGuards.Add(vertex);
-                    //var unguardedIndicator = Resources.Load("Prefabs/NotGuarded") as GameObject;
-                    //GameObject.Instantiate(unguardedIndicator, new Vector3(vertex.x, vertex.y, -5f), Quaternion.identity);
-                    //allGuarded = false;
                 }
             }
 

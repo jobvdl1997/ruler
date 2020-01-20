@@ -115,6 +115,12 @@ namespace ArtGallery
         /// <summary>Handle a click on the island mesh.</summary>
         public override void HandleIslandClick()
         {
+            // turn off all unguarded indicators
+            GameObject[] unguardedSprites = GameObject.FindGameObjectsWithTag("UnGuarded");
+            foreach (GameObject sprite in unguardedSprites) {
+                sprite.SetActive(false);
+            }
+
             // return if lighthouse was already selected or player can place no more lighthouses
             if (m_selectedLighthouse != null ||
                 m_solution.Count >= m_maxNumberOfLighthouses)
@@ -218,7 +224,8 @@ namespace ArtGallery
             foreach (ArtGalleryLightHouse lighthouse in lightHouses) {
                 foreach (Vector2 unguardedLighthouse in unguardedLighthouses) {
                     if (lighthouse.Pos.x == unguardedLighthouse.x && lighthouse.Pos.y == unguardedLighthouse.y) {
-                        // disable that lighthouse's sprite
+                        // enable that lighthouse's sprite
+                        lighthouse.gameObject.transform.Find("NotGuarded(Clone)").gameObject.SetActive(true);
                     }
                 }
             }
