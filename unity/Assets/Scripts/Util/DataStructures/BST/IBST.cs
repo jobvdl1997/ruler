@@ -1,4 +1,7 @@
-﻿namespace Util.DataStructures.BST
+﻿using System.Collections;
+using System.Collections.Generic;
+
+namespace Util.DataStructures.BST
 {
     using System;
 
@@ -6,7 +9,7 @@
     /// Generic interface for a binary search tree (BST).
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IBST<T> where T : IComparable<T>, IEquatable<T>
+    public interface IBST<T> : IEnumerable<T> where T : IComparable<T>, IEquatable<T>
     {
         /// <summary>
         /// Check whether the tree contains the given data value.
@@ -40,6 +43,22 @@
         /// <param name="out_MaxValue"></param>
         /// <returns>whether the minimum was found</returns>
         bool FindMin(out T out_MinValue);
+
+        /// <summary>
+        /// Finds next smaller compared to given data value.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="out_NextSmallest"></param>
+        /// <returns>whether the method was succesful.</returns>
+        bool FindNextSmallest(T data, out T out_NextSmallest);
+        
+        /// <summary>
+        /// Finds next bigger value compared to given data value.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="out_NextBiggest"></param>
+        /// <returns>whether the method was succesful.</returns>
+        bool FindNextBiggest(T data, out T out_NextBiggest);
 
         /// <summary>
         /// Delete the given data value from the tree.
