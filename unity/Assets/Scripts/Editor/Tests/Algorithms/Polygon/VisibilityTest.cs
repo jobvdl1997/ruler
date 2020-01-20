@@ -66,6 +66,60 @@ namespace Util.Algorithms.Polygon.Tests
         }
 
         [Test]
+        public void AreaTest10()
+        {
+            var polygon = new Polygon2D(
+                new List<Vector2>()
+                {
+                    new Vector2(0, 0),
+                    new Vector2(0, 4),
+                    new Vector2(2, 8),
+                    new Vector2(4, 4),
+                    new Vector2(6, 4),
+                    new Vector2(8, 4),
+                    new Vector2(10, 4),
+                    new Vector2(10, 2),
+                    new Vector2(8, 2),
+                    new Vector2(6, 2),
+                    new Vector2(4, 2),
+                    new Vector2(2, 2),
+                    new Vector2(2, 0)
+                });
+
+            var vertex = polygon.Vertices.ElementAt(1);
+            var vision1 = Visibility.Vision(polygon, vertex);
+            Assert.AreEqual(polygon.Vertices.Count, vision1.Vertices.Count);
+        }
+
+        [Test]
+        public void AreaTest11()
+        {
+            var polygon = new Polygon2D(
+                new List<Vector2>()
+                {
+                    new Vector2(0, 0),
+                    new Vector2(0, 4),
+                    new Vector2(2, 8),
+                    new Vector2(4, 4),
+                    new Vector2(4, 6),
+                    new Vector2(6, 4),
+                    new Vector2(8, 4),
+                    new Vector2(10, 4),
+                    new Vector2(10, 2),
+                    new Vector2(8, 2),
+                    new Vector2(6, 2),
+                    new Vector2(4, 2),
+                    new Vector2(2, 2),
+                    new Vector2(2, 0)
+                });
+
+            int visibleVertexes = 14;
+            var vertex = polygon.Vertices.ElementAt(1);
+            var vision1 = Visibility.Vision(polygon, vertex);
+            Assert.AreEqual(visibleVertexes, vision1.Vertices.Count);
+        }
+
+        [Test]
         public void AreaTest2()
         {
             var shape = new Polygon2D(
@@ -243,6 +297,73 @@ namespace Util.Algorithms.Polygon.Tests
             Assert.IsTrue(MathUtil.EqualsEps(expectedArea2, actualArea2));
             Assert.IsTrue(MathUtil.EqualsEps(expectedArea3, actualArea3));
             Assert.IsTrue(MathUtil.EqualsEps(expectedArea4, actualArea4));
+        }
+
+        [Test]
+        public void AreaTest7()
+        {
+            var shape = LShape;
+
+            var vision1 = Visibility.Vision(shape, shape.Vertices.ElementAt(1));
+            Assert.AreEqual(shape.Vertices.Count, vision1.Vertices.Count);
+        }
+
+        [Test]
+        public void AreaTest8()
+        {
+            var polygon = new Polygon2D(
+                new List<Vector2>()
+                {
+                    new Vector2(0, 0),
+                    new Vector2(0, 4),
+                    new Vector2(4, 4),
+                    new Vector2(6, 4),
+                    new Vector2(8, 4),
+                    new Vector2(10, 4),
+                    new Vector2(10, 2),
+                    new Vector2(8, 2),
+                    new Vector2(6, 2),
+                    new Vector2(4, 2),
+                    new Vector2(2, 2),
+                    new Vector2(2, 0)
+                });
+
+            int visibleVertexes = 12;
+            var vertex = polygon.Vertices.ElementAt(1);
+            var vision1 = Visibility.Vision(polygon, vertex);
+            Assert.AreEqual(polygon.Vertices.Count, vision1.Vertices.Count);
+        }
+
+        [Test]
+        public void AreaTest9()
+        {
+            var polygon = new Polygon2D(
+                new List<Vector2>()
+                {
+                    new Vector2(0, 0),
+                    new Vector2(0, 4),
+                    new Vector2(4, 4),
+                    new Vector2(4, 6),
+                    new Vector2(5, 4),
+                    new Vector2(6, 6),
+                    new Vector2(6, 4),
+                    new Vector2(8, 4),
+                    new Vector2(10, 4),
+                    new Vector2(10, 2),
+                    new Vector2(8, 2),
+                    new Vector2(6, 2),
+                    new Vector2(4, 2),
+                    new Vector2(2, 2),
+                    new Vector2(2, 0)
+                });
+
+            var vertex = polygon.Vertices.ElementAt(1);
+
+            var vision1 = Visibility.Vision(polygon, vertex);
+            float expectedArea1 = 24f;
+            float actualArea1 = vision1.Area;
+
+            Assert.IsTrue(MathUtil.EqualsEps(expectedArea1, actualArea1));
         }
 
         [Test]
