@@ -52,6 +52,8 @@ namespace Util.Algorithms.Polygon
                 result = martinez.Run();
             }
 
+            Debug.Log(result.TikzFormat());
+
             return result;
         }
     }

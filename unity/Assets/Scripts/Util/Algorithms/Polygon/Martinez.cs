@@ -525,6 +525,23 @@ namespace Util.Algorithms.Polygon
                     resultEvent.OtherEvent.PositionInResult = tmp;
                 }
             }
+            
+            var current = new List<int>();
+            SweepEvent lastEvent = null;
+            foreach (var resultEvent in resultEvents)
+            {
+                current.Add(resultEvent.PositionInResult);
+                if (lastEvent == null || lastEvent.Pos == resultEvent.Pos)
+                {
+                    lastEvent = resultEvent;
+                    continue;
+                }
+                
+                Debug.Log(string.Format("\\node[draw] at ({0:f2}, {1:f2}) {{{2}}};", resultEvent.Point.x, resultEvent.Point.y, string.Join(",", current.Select(v => v.ToString()).ToArray())));
+                
+                current.Clear();
+                lastEvent = resultEvent;
+            }
 
             var processed = new BitArray(resultEvents.Count);
             var depth = new List<int>();
