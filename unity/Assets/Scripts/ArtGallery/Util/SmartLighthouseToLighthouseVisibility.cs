@@ -109,13 +109,14 @@ namespace ArtGallery
         /// </summary>
         /// <param name="vertices">
         ///     The collection of vertices for which visibility needs to be
-        ///     calculated
+        ///     calculated. 
         /// </param>
         /// <param name="polygon">The polygon in which the vertices exist.</param>
         /// <returns>
         ///     A dictionary containing for each vertex the other visible
         ///     vertices
         /// </returns>
+        /// <remarks>Vertices in <paramref name="vertices"/> should be unique. No two vertices should have the same x and y coordinates </remarks>
         public IDictionary<Vector2, ICollection<Vector2>>
             VisibleToOtherVertices(
                 List<Vector2> vertices,
