@@ -48,39 +48,6 @@ namespace Assets.Scripts.ArtGallery.Util
             polyvertices = polyvertices.StartAt(vertex).ToList();
             visibilityvertices = visibilityvertices.StartAt(vertex).ToList();
 
-            // move all vertices such that the vertex vertex is at the origin
-            // and transform them to PolarPoint2D
-
-            var polyPolarPoints = polyvertices
-                                  .Select(v => v - vertex)
-                                  .Select(x => new PolarPoint2D(x))
-                                  .ToList();
-
-            var visPolarPoints = visibilityvertices
-                                 .Select(v => v - vertex)
-                                 .Select(x => new PolarPoint2D(x))
-                                 .ToList();
-
-            var initAngle = polyPolarPoints[1].Theta;
-
-            // rotate all points of the shifted polygon clockwise such that v0 lies
-            // on the x axis
-            foreach (var curr in polyPolarPoints)
-            {
-                if (!curr.IsOrigin())
-                {
-                    curr.RotateClockWise(initAngle);
-                }
-            }
-
-            foreach (var curr in visPolarPoints)
-            {
-                if (!curr.IsOrigin())
-                {
-                    curr.RotateClockWise(initAngle);
-                }
-            }
-
             bool done = false;
             int polyIndex = 0;
             int visIndex = 0;
@@ -149,10 +116,7 @@ namespace Assets.Scripts.ArtGallery.Util
                     polyIndex++;
                 }
 
-                //                if (!(polyIndex < polyvertices.Count) && !(visIndex < visibilityvertices.Count))
-                //                {
-                //                    done = true;
-                //                }
+               
                 if (!(polyIndex < polyvertices.Count))
                 {
                     done = true;
