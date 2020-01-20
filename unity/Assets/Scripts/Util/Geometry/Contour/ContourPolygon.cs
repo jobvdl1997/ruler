@@ -241,5 +241,10 @@ namespace Util.Geometry.Contour
         {
             throw new NotImplementedException();
         }
+
+        public bool OnBoundary(Vector2 pos)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
