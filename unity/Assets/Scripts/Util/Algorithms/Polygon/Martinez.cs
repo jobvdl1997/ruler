@@ -20,10 +20,8 @@ namespace Util.Algorithms.Polygon
     /// at http://www4.ujaen.es/~fmartin/bool_op.html with modifications to improve robustness, since the published
     /// C++ implementation is not robust.
     ///
-    /// To improve robustness, the algorithm uses doubles instead of floats, as this reduces the number of edge
-    /// cases significantly. Moreover, it might seem counterintuitive that EqualsEps is never used and always != 0
-    /// and the like are used, but this is on purpose; finding an extra intersection is much less problematic than
-    /// not finding an intersection where there should not be one.
+    /// To improve robustness, the algorithm always uses EqualsEps, GreaterEps, LessEps, LEQEps and GEQEps instead of
+    /// the native functionality.
     ///
     /// To use this algorithm for the union of <see cref="Polygon2D"/>, see <see cref="UnionSweepLine"/>.
     /// </summary>
@@ -62,7 +60,7 @@ namespace Util.Algorithms.Polygon
         /// <summary>
         /// The minimum right bound of the subject and clipping bounding boxes.
         /// </summary>
-        private double RightBound { get; set; }
+        private float RightBound { get; set; }
 
         /// <summary>
         /// Creates a new object for executing a single boolean operation using the Martinez algorithm. Usually, the
@@ -195,17 +193,14 @@ namespace Util.Algorithms.Polygon
         /// <param name="segment">A list consisting of two points defining an edge</param>
         /// <param name="polygonType"></param>
         /// <param name="list">The list to add the events to</param>
-        private void CreateEvents(IList<Vector2D> segment, PolygonType polygonType,
+        private void CreateEvents(LineSegment segment, PolygonType polygonType,
             ICollection<SweepEvent> list)
         {
-            var point1 = segment[0];
-            var point2 = segment[1];
-
-            var event1 = new SweepEvent(point1, false, null, polygonType);
-            var event2 = new SweepEvent(point2, false, event1, polygonType);
+            var event1 = new SweepEvent(segment.Point1, false, null, polygonType);
+            var event2 = new SweepEvent(segment.Point2, false, event1, polygonType);
             event1.OtherEvent = event2;
 
-            if (point1.Equals(point2))
+            if (segment.Point1.EqualsEps(segment.Point2))
             {
                 // 0-length segments are irrelevant for us since they will never result in intersections
                 return;
@@ -360,9 +355,9 @@ namespace Util.Algorithms.Polygon
 
         private int PossibleIntersection(SweepEvent ev1, SweepEvent ev2, IBST<SweepEvent> events)
         {
-            Vector2D intersectionPoint;
+            Vector2? ip;
             var nIntersections = FindIntersections(ev1.Point, ev1.OtherEvent.Point, ev2.Point, ev2.OtherEvent.Point,
-                out intersectionPoint);
+                out ip);
 
             if (nIntersections == 0)
             {
@@ -370,8 +365,8 @@ namespace Util.Algorithms.Polygon
             }
 
             // If the intersection is between two endpoints
-            if (nIntersections == 1 && (ev1.Point.Equals(ev2.Point) ||
-                                        ev1.OtherEvent.Point.Equals(ev2.OtherEvent.Point)))
+            if (nIntersections == 1 && (ev1.Point.EqualsEps(ev2.Point) ||
+                                        ev1.OtherEvent.Point.EqualsEps(ev2.OtherEvent.Point)))
             {
                 return 0; // the line segments intersect at an endpoint of both line segments
             }
@@ -386,13 +381,14 @@ namespace Util.Algorithms.Polygon
             // The line segments associated to ev1 and ev2 intersect
             if (nIntersections == 1)
             {
-                if (!ev1.Point.Equals(intersectionPoint) && !ev1.OtherEvent.Point.Equals(intersectionPoint)
+                var intersectionPoint = ip.Value;
+                if (!ev1.Point.EqualsEps(intersectionPoint) && !ev1.OtherEvent.Point.EqualsEps(intersectionPoint)
                 ) // If the intersection point is not an endpoint of ev1.Segment
                 {
                     DivideSegment(ev1, intersectionPoint, events);
                 }
 
-                if (!ev2.Point.Equals(intersectionPoint) && !ev2.OtherEvent.Point.Equals(intersectionPoint)
+                if (!ev2.Point.EqualsEps(intersectionPoint) && !ev2.OtherEvent.Point.EqualsEps(intersectionPoint)
                 ) // If the intersection point is not an endpoint of ev2.Segment
                 {
                     DivideSegment(ev2, intersectionPoint, events);
@@ -405,7 +401,7 @@ namespace Util.Algorithms.Polygon
             var sortedEvents = new List<SweepEvent>();
             var leftEqual = false;
             var rightEqual = false;
-            if (ev1.Point.Equals(ev2.Point))
+            if (ev1.Point.EqualsEps(ev2.Point))
             {
                 leftEqual = true;
             }
@@ -420,7 +416,7 @@ namespace Util.Algorithms.Polygon
                 sortedEvents.Add(ev2);
             }
 
-            if (ev1.OtherEvent.Point.Equals(ev2.OtherEvent.Point))
+            if (ev1.OtherEvent.Point.EqualsEps(ev2.OtherEvent.Point))
             {
                 rightEqual = true;
             }
@@ -469,7 +465,7 @@ namespace Util.Algorithms.Polygon
             return 3;
         }
 
-        private void DivideSegment(SweepEvent ev, Vector2D pos, IBST<SweepEvent> events)
+        private void DivideSegment(SweepEvent ev, Vector2 pos, IBST<SweepEvent> events)
         {
             // "Right event" of the "left line segment" resulting from dividing ev.Segment
             var r = new SweepEvent(pos, false, ev, ev.PolygonType);
@@ -604,7 +600,7 @@ namespace Util.Algorithms.Polygon
         private int NextPos(int pos, List<SweepEvent> resultEvents, BitArray processed, int origIndex)
         {
             var newPos = pos + 1;
-            while (newPos < resultEvents.Count && resultEvents[newPos].Point.Equals(resultEvents[pos].Point))
+            while (newPos < resultEvents.Count && resultEvents[newPos].Point.EqualsEps(resultEvents[pos].Point))
             {
                 if (!processed[newPos])
                 {
@@ -637,8 +633,8 @@ namespace Util.Algorithms.Polygon
         /// <param name="b2"></param>
         /// <param name="intersectionPoint"></param>
         /// <returns></returns>
-        private static int FindIntersections(Vector2D a1, Vector2D a2, Vector2D b1, Vector2D b2,
-            out Vector2D intersectionPoint)
+        private static int FindIntersections(Vector2 a1, Vector2 a2, Vector2 b1, Vector2 b2,
+            out Vector2? intersectionPoint)
         {
             intersectionPoint = null;
 
@@ -648,65 +644,66 @@ namespace Util.Algorithms.Polygon
 
             // Difference between the two supporting points
             var e = b1 - a1;
-            var kross = va.Cross(vb);
-            var sqrLenA = va.Dot(va);
-            if (kross != 0) // The cross product of va and vb is zero only when the lines are parallel
+            var kross = Cross(va, vb);
+            var sqrLenA = Dot(va, va);
+            if (!MathUtil.EqualsEps(kross, 0)
+            ) // The cross product of va and vb is zero only when the lines are parallel
             {
                 // These lines are thus not parallel, but they might still not intersect because they are line segments.
 
-                var s = e.Cross(vb) / kross;
-                if (s < 0 || s > 1)
+                var s = Cross(e, vb) / kross;
+                if (MathUtil.LessEps(s, 0) || MathUtil.GreaterEps(s, 1))
                 {
                     // It's not on line segment a
                     return 0;
                 }
 
-                var t = e.Cross(va) / kross;
-                if (t < 0 || t > 1)
+                var t = Cross(e, va) / kross;
+                if (MathUtil.LessEps(t, 0) || MathUtil.GreaterEps(t, 1))
                 {
                     // It's not on line segment b
                     return 0;
                 }
 
-                if (t == 0 || t == 1)
+                if (MathUtil.EqualsEps(t, 0) || MathUtil.EqualsEps(t, 1))
                 {
                     // The intersection is on an endpoint of line segment b
-                    intersectionPoint = b1.Interpolate(t, vb);
+                    intersectionPoint = Interpolate(b1, t, vb);
                     return 1;
                 }
 
                 // The check for line segment a is not required because then the following will just work.
 
-                intersectionPoint = a1.Interpolate(s, va);
+                intersectionPoint = Interpolate(a1, s, va);
                 return 1;
             }
 
             // When the vector between the two supporting points and the vector of segment a are parallel,
             // they are the same line. Otherwise, they are merely parallel. So, if the cross product is non-zero,
             // they are just parallel and not the same line.
-            if (e.Cross(va) != 0)
+            if (!MathUtil.EqualsEps(Cross(e, va), 0))
             {
                 return 0;
             }
 
-            var sa = va.Dot(e) / sqrLenA;
-            var sb = sa + va.Dot(vb) / sqrLenA;
+            var sa = Dot(va, e) / sqrLenA;
+            var sb = sa + Dot(va, vb) / sqrLenA;
             var smin = System.Math.Min(sa, sb);
             var smax = System.Math.Max(sa, sb);
 
-            if (smin <= 1 || smax >= 0)
+            if (MathUtil.LEQEps(smin, 1) || MathUtil.GEQEps(smax, 0))
             {
-                if (smin == 1)
+                if (MathUtil.EqualsEps(smin, 1))
                 {
                     // Intersection on an endpoint of line segment a
-                    intersectionPoint = a1.Interpolate(smin, va);
+                    intersectionPoint = Interpolate(a1, smin, va);
                     return 1;
                 }
 
-                if (smax == 0)
+                if (MathUtil.EqualsEps(smax, 0))
                 {
                     // Intersection on an endpoint of line segment b
-                    intersectionPoint = a1.Interpolate(smax, va);
+                    intersectionPoint = Interpolate(a1, smax, va);
                     return 1;
                 }
 
@@ -721,9 +718,24 @@ namespace Util.Algorithms.Polygon
             return 0;
         }
 
+        private static float Cross(Vector2 a, Vector2 b)
+        {
+            return (a.x * b.y) - (a.y * b.x);
+        }
+
+        private static float Dot(Vector2 a, Vector2 b)
+        {
+            return a.x * b.x + a.y * b.y;
+        }
+
+        private static Vector2 Interpolate(Vector2 start, float tau, Vector2 end)
+        {
+            return new Vector2(start.x + tau * end.x, start.y + tau * end.y);
+        }
+
         public class SweepEvent : ISweepEvent<StatusItem>, IComparable<SweepEvent>, IEquatable<SweepEvent>
         {
-            internal SweepEvent(Vector2D pos, bool isStart, SweepEvent otherEvent, PolygonType polygonType,
+            internal SweepEvent(Vector2 pos, bool isStart, SweepEvent otherEvent, PolygonType polygonType,
                 EdgeType edgeType = EdgeType.Normal)
             {
                 Point = pos;
@@ -737,11 +749,11 @@ namespace Util.Algorithms.Polygon
             }
 
             // Point associated with the event
-            internal Vector2D Point { get; private set; }
+            internal Vector2 Point { get; private set; }
 
             public Vector2 Pos
             {
-                get { return Point.Vector2; }
+                get { return Point; }
             }
 
             public StatusItem StatusItem { get; set; }
@@ -815,11 +827,11 @@ namespace Util.Algorithms.Polygon
             /// </summary>
             /// <param name="p"></param>
             /// <returns>Whether the line segment is below point p</returns>
-            internal bool Below(Vector2D p)
+            internal bool Below(Vector2 p)
             {
                 return IsStart
-                    ? MathUtil.SignedArea(Point, OtherEvent.Point, p) > 0
-                    : MathUtil.SignedArea(OtherEvent.Point, Point, p) > 0;
+                    ? MathUtil.GreaterEps(MathUtil.SignedArea(Point, OtherEvent.Point, p), 0)
+                    : MathUtil.GreaterEps(MathUtil.SignedArea(OtherEvent.Point, Point, p), 0);
             }
 
             /// <summary>
@@ -827,7 +839,7 @@ namespace Util.Algorithms.Polygon
             /// </summary>
             /// <param name="p"></param>
             /// <returns>Whether the line segment is above point p</returns>
-            internal bool Above(Vector2D p)
+            internal bool Above(Vector2 p)
             {
                 return !Below(p);
             }
@@ -837,7 +849,7 @@ namespace Util.Algorithms.Polygon
             /// </summary>
             internal bool Vertical
             {
-                get { return Point.x.Equals(OtherEvent.Point.x); }
+                get { return MathUtil.EqualsEps(Point.x, OtherEvent.Point.x); }
             }
 
             /// <summary>
@@ -866,20 +878,20 @@ namespace Util.Algorithms.Polygon
             /// <returns>True when e1 should be placed before e2, i.e. e1 should be handled after e2</returns>
             public static int CompareTo(SweepEvent e1, SweepEvent e2)
             {
-                if (e1.Point.x > e2.Point.x) // Different x-coordinate
+                if (MathUtil.GreaterEps(e1.Point.x, e2.Point.x)) // Different x-coordinate
                 {
                     return 1;
                 }
 
-                if (e1.Point.x < e2.Point.x) // Different x-coordinate
+                if (MathUtil.LessEps(e1.Point.x, e2.Point.x)) // Different x-coordinate
                 {
                     return -1;
                 }
 
-                if (!e1.Point.y.Equals(e2.Point.y)
+                if (!MathUtil.EqualsEps(e1.Point.y, e2.Point.y)
                 ) // Different points, but same x-coordinate. The event with lower y-coordinate is processed first
                 {
-                    return e1.Point.y > e2.Point.y ? 1 : -1;
+                    return MathUtil.GreaterEps(e1.Point.y, e2.Point.y) ? 1 : -1;
                 }
 
                 if (e1.IsStart != e2.IsStart
@@ -889,7 +901,7 @@ namespace Util.Algorithms.Polygon
                 }
 
                 // Same point, but events are left endpoints or both are right endpoints.
-                if (MathUtil.SignedArea(e1.Point, e1.OtherEvent.Point, e2.OtherEvent.Point) != 0)
+                if (!MathUtil.EqualsEps(MathUtil.SignedArea(e1.Point, e1.OtherEvent.Point, e2.OtherEvent.Point), 0))
                 {
                     // Not collinear
                     return
@@ -942,20 +954,20 @@ namespace Util.Algorithms.Polygon
                     return 0;
                 }
 
-                if (MathUtil.SignedArea(le1.Point, le1.OtherEvent.Point, le2.Point) != 0 ||
-                    MathUtil.SignedArea(le1.Point, le1.OtherEvent.Point, le2.OtherEvent.Point) != 0)
+                if (!MathUtil.EqualsEps(MathUtil.SignedArea(le1.Point, le1.OtherEvent.Point, le2.Point), 0) ||
+                    !MathUtil.EqualsEps(MathUtil.SignedArea(le1.Point, le1.OtherEvent.Point, le2.OtherEvent.Point), 0))
                 {
                     // Segments are not collinear
                     // If they share their left endpoint use the right endpoint to sort
-                    if (le1.Point.Equals(le2.Point))
+                    if (le1.Point.EqualsEps(le2.Point))
                     {
                         return le1.Below(le2.OtherEvent.Point) ? -1 : 1;
                     }
 
                     // Different left endpoint: use the left endpoint to sort
-                    if (le1.Point.x.Equals(le2.Point.x))
+                    if (MathUtil.EqualsEps(le1.Point.x, le2.Point.x))
                     {
-                        return le1.Point.y < le2.Point.y ? -1 : 1;
+                        return MathUtil.LessEps(le1.Point.y, le2.Point.y) ? -1 : 1;
                     }
 
                     if (le1.CompareTo(le2) == 1
@@ -977,9 +989,9 @@ namespace Util.Algorithms.Polygon
                 // Same polygon
 
                 // Just a consistent criterion is used
-                if (le1.Point.Equals(le2.Point))
+                if (le1.Point.EqualsEps(le2.Point))
                 {
-                    if (le1.OtherEvent.Point.Equals(le2.OtherEvent.Point))
+                    if (le1.OtherEvent.Point.EqualsEps(le2.OtherEvent.Point))
                     {
                         return 0;
                     }

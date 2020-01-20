@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace Util.Geometry.Contour
 {
@@ -8,7 +9,7 @@ namespace Util.Geometry.Contour
         /// <summary>
         /// Set of vertices conforming to the requirements given in ContourPolygon.
         /// </summary>
-        public List<Vector2D> Vertices { get; private set; }
+        public List<Vector2> Vertices { get; private set; }
 
         /// <summary>
         /// Holes of the contour. They are stored as the indexes of the holes in a PolygonContour class.
@@ -27,26 +28,26 @@ namespace Util.Geometry.Contour
 
         public Contour(bool external = true)
         {
-            Vertices = new List<Vector2D>();
+            Vertices = new List<Vector2>();
             Holes = new List<int>();
             External = external;
         }
 
-        public Contour(IEnumerable<Vector2D> points, bool external = true)
+        public Contour(IEnumerable<Vector2> points, bool external = true)
         {
-            Vertices = new List<Vector2D>(points);
+            Vertices = new List<Vector2>(points);
             Holes = new List<int>();
             External = external;
         }
 
-        public Contour(IEnumerable<Vector2D> vertices, IEnumerable<int> holes, bool external = true)
+        public Contour(IEnumerable<Vector2> vertices, IEnumerable<int> holes, bool external = true)
         {
-            Vertices = new List<Vector2D>(vertices);
+            Vertices = new List<Vector2>(vertices);
             Holes = new List<int>(holes);
             External = external;
         }
 
-        public void AddVertex(Vector2D p)
+        public void AddVertex(Vector2 p)
         {
             Vertices.Add(p);
         }
@@ -83,27 +84,17 @@ namespace Util.Geometry.Contour
 
         public ICollection<LineSegment> Segments
         {
-            get
-            {
-                return Enumerable.Range(0, VertexCount).Select(Segment)
-                    .Select(v => new LineSegment(v[0].Vector2, v[1].Vector2)).ToList();
-            }
+            get { return Enumerable.Range(0, VertexCount).Select(Segment).ToList(); }
         }
 
-        public List<Vector2D> Segment(int i)
+        public LineSegment Segment(int i)
         {
             if (i == VertexCount - 1)
             {
-                return new List<Vector2D>
-                {
-                    Vertices.Last(), Vertices.First()
-                };
+                return new LineSegment(Vertices.Last(), Vertices.First());
             }
 
-            return new List<Vector2D>
-            {
-                Vertices[i], Vertices[i + 1]
-            };
+            return new LineSegment(Vertices[i], Vertices[i + 1]);
         }
     }
 }
