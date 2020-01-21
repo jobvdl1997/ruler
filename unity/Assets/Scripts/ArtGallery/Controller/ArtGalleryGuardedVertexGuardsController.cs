@@ -53,6 +53,12 @@ namespace ArtGallery
             var worldlocation = Camera.main.ScreenPointToRay(Input.mousePosition).origin;
             worldlocation.z = -2f;
 
+            // turn off all unguarded indicators
+            GameObject[] unguardedSprites = GameObject.FindGameObjectsWithTag("UnGuarded");
+            foreach (GameObject sprite in unguardedSprites) {
+                sprite.SetActive(false);
+            }
+
             // move lighthouse to mouse position
             // will update visibility polygon
             Vector3 location = ClosestVertex(worldlocation);
@@ -115,11 +121,6 @@ namespace ArtGallery
         /// <summary>Handle a click on the island mesh.</summary>
         public override void HandleIslandClick()
         {
-            // turn off all unguarded indicators
-            GameObject[] unguardedSprites = GameObject.FindGameObjectsWithTag("UnGuarded");
-            foreach (GameObject sprite in unguardedSprites) {
-                sprite.SetActive(false);
-            }
 
             // return if lighthouse was already selected or player can place no more lighthouses
             if (m_selectedLighthouse != null ||
@@ -157,6 +158,13 @@ namespace ArtGallery
 
             // add lighthouse to art gallery solution
             m_solution.AddLighthouse(go);
+
+            // turn off all unguarded indicators
+            GameObject[] unguardedSprites = GameObject.FindGameObjectsWithTag("UnGuarded");
+            foreach (GameObject sprite in unguardedSprites) {
+                sprite.SetActive(false);
+            }
+
             UpdateLighthouseText();
 
             CheckSolution();
