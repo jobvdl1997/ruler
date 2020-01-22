@@ -1,14 +1,6 @@
 ﻿namespace ArtGallery
 {
-    using General.Controller;
-    using General.Menu;
-    using System;
-    using System.Collections.Generic;
     using UnityEngine;
-    using UnityEngine.SceneManagement;
-    using UnityEngine.UI;
-    using Util.Algorithms.Polygon;
-    using Util.Geometry.Polygon;
     using Util.Math;
 
     /// <summary>

@@ -23,6 +23,7 @@
         {
             get
             {
+                // Create a union from the vision polygons of all current lighthouses using the m_union union algorithm
                 return m_union.Union(m_lighthouses.Select(x => x.VisionPoly).ToList()).Area;
             }
         }
@@ -45,7 +46,7 @@
         {
             m_objects = new List<GameObject>();
             m_lighthouses = new List<ArtGalleryLightHouse>();
-            m_union = new UnionNaive();
+            m_union = new UnionSweepLine();
         }
 
         /// <summary>

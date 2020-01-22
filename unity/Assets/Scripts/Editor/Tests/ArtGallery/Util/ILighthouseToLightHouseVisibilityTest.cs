@@ -1,24 +1,30 @@
-﻿namespace ArtGallery.Tests
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using NUnit.Framework;
-    using UnityEngine;
-    using Util.Geometry;
-    using Util.Geometry.Polygon;
-    using Util.Math;
-    using Util.Algorithms.Polygon;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Assets.Scripts.ArtGallery.Util;
+using NUnit.Framework;
+using UnityEngine;
+using Util.Geometry.Polygon;
 
-    [TestFixture]
-    public class NaiveLighthouseToLighthouseVisibilityTest
+namespace ArtGallery.Tests
+{
+
+    [TestFixture(typeof(NaiveLighthouseToLighthouseVisibility))]
+    [TestFixture(typeof(SmartLighthouseToLighthouseVisibility))]
+    public class
+        ILighthouseToLightHouseVisibilityTest<TLighthouseToLightHouseVisibility>
+        where TLighthouseToLightHouseVisibility :
+        ILighthouseToLightHouseVisibility, new()
     {
+        /// <summary>
+        /// An instance of a class implementing <see cref="ILighthouseToLightHouseVisibility"/>
+        /// </summary>
+        private TLighthouseToLightHouseVisibility m_L2LVisibility;
+
         private readonly Polygon2D arrowPoly;
         private readonly Polygon2D diamondPoly;
         private readonly Polygon2D LShape;
 
-        public NaiveLighthouseToLighthouseVisibilityTest()
+        public ILighthouseToLightHouseVisibilityTest()
         {
             var m_topVertex = new Vector2(1, 1);
             var m_botVertex = new Vector2(0, -1);
@@ -56,6 +62,13 @@
                 });
         }
 
+        [SetUp]
+        public void CreateUnion()
+        {
+            m_L2LVisibility = new TLighthouseToLightHouseVisibility();
+        }
+
+
         [Test]
         public void VisibleToEachOtherTest()
         {
@@ -65,7 +78,7 @@
             var vertex2 = polygon.Vertices.ElementAt(2);
 
             bool canSeeEachOther =
-                NaiveLighthouseToLighthouseVisibility.VisibleToOtherVertex(
+                m_L2LVisibility.VisibleToOtherVertex(
                     vertex1,
                     vertex2,
                     polygon);
@@ -97,7 +110,7 @@
             var vertex2 = polygon.Vertices.ElementAt(1);
 
             bool canSeeEachOther =
-                NaiveLighthouseToLighthouseVisibility.VisibleToOtherVertex(
+                m_L2LVisibility.VisibleToOtherVertex(
                     vertex1,
                     vertex2,
                     polygon);
@@ -130,7 +143,7 @@
             var vertex2 = new Vector2(10, 4);
 
             bool canSeeEachOther =
-                NaiveLighthouseToLighthouseVisibility.VisibleToOtherVertex(
+                m_L2LVisibility.VisibleToOtherVertex(
                     vertex1,
                     vertex2,
                     polygon);
@@ -162,7 +175,7 @@
             var vertex2 = new Vector2(10, 2);
 
             bool canSeeEachOther =
-                NaiveLighthouseToLighthouseVisibility.VisibleToOtherVertex(
+                m_L2LVisibility.VisibleToOtherVertex(
                     vertex1,
                     vertex2,
                     polygon);
@@ -192,16 +205,16 @@
 
             var vertex1 = new Vector2(0, 0);
 
-            var otherVertexes = new List<Vector2>()
+            var othervertices = new List<Vector2>()
             {
                 new Vector2(10, 2),
                 new Vector2(0, 4)
             };
 
             bool canSeeEachOther =
-                NaiveLighthouseToLighthouseVisibility.VisibleToOtherVertex(
+                m_L2LVisibility.VisibleToOtherVertex(
                     vertex1,
-                    otherVertexes,
+                    othervertices,
                     polygon);
 
             Assert.IsTrue(canSeeEachOther);
@@ -229,16 +242,16 @@
 
             var vertex1 = new Vector2(0, 0);
 
-            var otherVertexes = new List<Vector2>()
+            var othervertices = new List<Vector2>()
             {
                 new Vector2(10, 2),
                 new Vector2(0, 4)
             };
 
             bool canSeeEachOther =
-                NaiveLighthouseToLighthouseVisibility.VisibleToOtherVertex(
+                m_L2LVisibility.VisibleToOtherVertex(
                     vertex1,
-                    otherVertexes,
+                    othervertices,
                     polygon);
 
             Assert.IsTrue(canSeeEachOther);
@@ -265,22 +278,17 @@
                     new Vector2(2, 0)
                 });
 
-            var vertexes = new List<Vector2>()
+            var vertices = new List<Vector2>()
             {
                 new Vector2(0, 0),
                 new Vector2(10, 2),
                 new Vector2(0, 4)
             };
 
-            List<Vector2> unguarded =
-                NaiveLighthouseToLighthouseVisibility.VisibleToOtherVertex(
-                    vertexes,
+            bool canSeeEachOther =
+                m_L2LVisibility.VisibleToOtherVertex(
+                    vertices,
                     polygon);
-            bool canSeeEachOther = true;
-
-            if (unguarded.Count != 0) {
-                canSeeEachOther = false;
-            }
 
             Assert.IsTrue(canSeeEachOther);
         }
@@ -305,7 +313,7 @@
                     new Vector2(2, 0)
                 });
 
-            var vertexes = new List<Vector2>()
+            var vertices = new List<Vector2>()
             {
                 new Vector2(0, 0),
                 new Vector2(10, 2),
@@ -314,21 +322,16 @@
                 new Vector2(4, 2),
             };
 
-            List<Vector2> unguarded =
-                NaiveLighthouseToLighthouseVisibility.VisibleToOtherVertex(
-                    vertexes,
+            bool canSeeEachOther =
+                m_L2LVisibility.VisibleToOtherVertex(
+                    vertices,
                     polygon);
-            bool canSeeEachOther = true;
-
-            if (unguarded.Count != 0) {
-                canSeeEachOther = false;
-            }
 
             Assert.IsFalse(canSeeEachOther);
         }
 
         [Test]
-        public void VisibleToOtherVertexesTest1()
+        public void VisibleToOtherVerticesTest1()
         {
             var m_topVertex = new Vector2(1, 1);
             var m_botVertex = new Vector2(0, -1);
@@ -344,27 +347,27 @@
                     m_rightVertex
                 });
 
-            var vertexes = new List<Vector2>()
+            var vertices = new List<Vector2>()
             {
                 m_botVertex
             };
 
-            var visibleVertexes = new List<Vector2>();
+            var visibleVertices = new List<Vector2>();
 
             var vertex = m_topVertex;
 
             var actual =
-                NaiveLighthouseToLighthouseVisibility.VisibleToOtherVertices(
+                m_L2LVisibility.VisibleToOtherVertices(
                     vertex,
-                    vertexes,
+                    vertices,
                     polygon);
 
-            Assert.AreEqual(visibleVertexes.Count, actual.Count);
+            Assert.AreEqual(visibleVertices.Count, actual.Count);
         }
 
 
         [Test]
-        public void VisibleToOtherVertexesTest2()
+        public void VisibleToOtherVerticesTest2()
         {
             var m_topVertex = new Vector2(1, 1);
             var m_botVertex = new Vector2(0, -1);
@@ -380,14 +383,14 @@
                     m_rightVertex
                 });
 
-            var vertexes = new List<Vector2>()
+            var vertices = new List<Vector2>()
             {
                 m_farRightVertex,
                 m_botVertex,
                 m_rightVertex
             };
 
-            var visibleVertexes = new List<Vector2>()
+            var visibleVertices = new List<Vector2>()
             {
                 m_farRightVertex,
                 m_rightVertex
@@ -396,16 +399,16 @@
             var vertex = m_topVertex;
 
             var actual =
-                NaiveLighthouseToLighthouseVisibility.VisibleToOtherVertices(
+                m_L2LVisibility.VisibleToOtherVertices(
                     vertex,
-                    vertexes,
+                    vertices,
                     polygon);
 
-            Assert.AreEqual(visibleVertexes.Count, actual.Count);
+            Assert.AreEqual(visibleVertices.Count, actual.Count);
         }
 
         [Test]
-        public void VisibleToOtherVertexesTest3()
+        public void VisibleToOtherVerticesTest3()
         {
             var m_topVertex = new Vector2(1, 1);
             var m_botVertex = new Vector2(0, -1);
@@ -421,7 +424,7 @@
                     m_rightVertex
                 });
 
-            var vertexes = new List<Vector2>()
+            var vertices = new List<Vector2>()
             {
                 m_topVertex,
                 m_botVertex,
@@ -429,8 +432,8 @@
             };
 
             var actual =
-                NaiveLighthouseToLighthouseVisibility.VisibleToOtherVertices(
-                    vertexes,
+                m_L2LVisibility.VisibleToOtherVertices(
+                    vertices,
                     polygon);
 
             Assert.AreEqual(1, actual[m_topVertex].Count);
@@ -439,7 +442,7 @@
         }
 
         [Test]
-        public void VisibleToOtherVertexesTest4()
+        public void VisibleToOtherVerticesTest4()
         {
             var polygon = new Polygon2D(
                 new List<Vector2>()
@@ -458,7 +461,7 @@
                     new Vector2(2, 0)
                 });
 
-            var vertexes = new List<Vector2>()
+            var vertices = new List<Vector2>()
             {
                 new Vector2(0, 0),
                 new Vector2(10, 2),
@@ -466,8 +469,8 @@
             };
 
             var actual =
-                NaiveLighthouseToLighthouseVisibility.VisibleToOtherVertices(
-                    vertexes,
+                m_L2LVisibility.VisibleToOtherVertices(
+                    vertices,
                     polygon);
 
             Assert.AreEqual(0, actual[new Vector2(0, 0)].Count);

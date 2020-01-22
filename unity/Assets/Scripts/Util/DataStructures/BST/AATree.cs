@@ -1,9 +1,12 @@
-﻿namespace Util.DataStructures.BST
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
+﻿﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
 
+namespace Util.DataStructures.BST
+{
     /// <summary>
     /// Implementation of an AA tree, which is a special type of BST.
     /// </summary>
@@ -23,7 +26,10 @@
         /// <summary>
         /// Root node of the tree
         /// </summary>
-        public Node Root { get { return m_Root; } }
+        public Node Root
+        {
+            get { return m_Root; }
+        }
 
         /// <summary>
         /// Stores data of a single node traversal, including parent and child information.
@@ -71,11 +77,12 @@
 
         public bool Insert(T data)
         {
-            if (!(data is ValueType) /* && EqualityComparer<T>.Default.Equals(data, default(T)) */)
+            /*if (!(data is ValueType) /* && EqualityComparer<T>.Default.Equals(data, default(T)) #1#)
             {
                 return false;
             }
-            else if (m_Root == m_Bottom)
+            else*/
+            if (m_Root == m_Bottom)
             {
                 // create root node
                 m_Root = CreateNode(data);
@@ -85,10 +92,11 @@
             {
                 Node currentNode = m_Root;
                 Node parent = null;
-                int comparisonResult = 1;   // initial value for loop condition to hold
+                int comparisonResult = 1; // initial value for loop condition to hold
 
                 // store traversal history in stack
-                Stack<TraversalHistory> nodeStack = new Stack<TraversalHistory>((int)Math.Ceiling(Math.Log(Count + 1, 2)) + 1);
+                Stack<TraversalHistory> nodeStack =
+                    new Stack<TraversalHistory>((int) System.Math.Ceiling(System.Math.Log(Count + 1, 2)) + 1);
                 nodeStack.Push(new TraversalHistory(currentNode, parent, TraversalHistory.ECHILDSIDE.ISROOT));
 
                 while (currentNode != m_Bottom)
@@ -151,6 +159,7 @@
                 out_MinValue = min.Data;
                 return true;
             }
+
             out_MinValue = default(T);
             return false;
         }
@@ -163,13 +172,14 @@
                 out_MaxValue = max.Data;
                 return true;
             }
+
             out_MaxValue = default(T);
             return false;
         }
 
         public bool Delete(T data)
         {
-            if (m_Root == m_Bottom  /*|| EqualityComparer<T>.Default.Equals(data, default(T)) */)
+            if (m_Root == m_Bottom /*|| EqualityComparer<T>.Default.Equals(data, default(T)) */)
             {
                 return false;
             }
@@ -177,7 +187,8 @@
             Node currentNode = m_Root;
             Node parent = null;
             Node deleted = m_Bottom;
-            Stack<TraversalHistory> nodeStack = new Stack<TraversalHistory>((int)Math.Ceiling(Math.Log(Count + 1, 2)) + 1);
+            Stack<TraversalHistory> nodeStack =
+                new Stack<TraversalHistory>((int) System.Math.Ceiling(System.Math.Log(Count + 1, 2)) + 1);
             nodeStack.Push(new TraversalHistory(currentNode, parent, TraversalHistory.ECHILDSIDE.ISROOT));
             while (currentNode != m_Bottom)
             {
@@ -195,6 +206,7 @@
                     currentNode = currentNode.Right;
                     hist = new TraversalHistory(currentNode, parent, TraversalHistory.ECHILDSIDE.RIGHT);
                 }
+
                 nodeStack.Push(hist);
             }
 
@@ -205,12 +217,14 @@
                 {
                     throw new Exception("First node in traversal history was not Bottom!");
                 }
+
                 TraversalHistory lastHist = nodeStack.Pop();
                 Node last = lastHist.node; // This is the node that is leftmost of the node that we want to delete.
                 if (last.Left != m_Bottom)
                 {
                     throw new Exception("Last has a left child that is not Bottom!");
                 }
+
                 deleted.Data = last.Data;
                 Node copy = last.Right;
                 if (copy != m_Bottom)
@@ -239,6 +253,7 @@
                         m_Root = m_Bottom;
                     }
                 }
+
                 --Count;
                 didDelete = true;
             }
@@ -255,6 +270,7 @@
                     {
                         n.Right.Level = n.Level;
                     }
+
                     n = Skew(n, t.parentNode, t.side);
                     n.Right = Skew(n.Right, n, TraversalHistory.ECHILDSIDE.RIGHT);
                     n.Right.Right = Skew(n.Right.Right, n.Right, TraversalHistory.ECHILDSIDE.RIGHT);
@@ -262,6 +278,7 @@
                     n.Right = Split(n.Right, n, TraversalHistory.ECHILDSIDE.RIGHT);
                 }
             }
+
             return didDelete;
         }
 
@@ -300,6 +317,7 @@
             {
                 min = min.Left;
             }
+
             return min;
         }
 
@@ -314,6 +332,7 @@
             {
                 max = max.Right;
             }
+
             return max;
         }
 
@@ -347,8 +366,8 @@
         public bool VerifyBST(T minValue, T maxValue)
         {
             return VerifyBST(m_Root, minValue, maxValue, COMPARISON_TYPE.INSERT) &&
-            VerifyBST(m_Root, minValue, maxValue, COMPARISON_TYPE.DELETE) &&
-            VerifyBST(m_Root, minValue, maxValue, COMPARISON_TYPE.FIND);
+                   VerifyBST(m_Root, minValue, maxValue, COMPARISON_TYPE.DELETE) &&
+                   VerifyBST(m_Root, minValue, maxValue, COMPARISON_TYPE.FIND);
         }
 
         /// <summary>
@@ -358,8 +377,8 @@
         public bool VerifyOrder()
         {
             return VerifyOrder(m_Root, COMPARISON_TYPE.INSERT) &&
-            VerifyOrder(m_Root, COMPARISON_TYPE.DELETE) &&
-            VerifyOrder(m_Root, COMPARISON_TYPE.FIND);
+                   VerifyOrder(m_Root, COMPARISON_TYPE.DELETE) &&
+                   VerifyOrder(m_Root, COMPARISON_TYPE.FIND);
         }
 
         /// <summary>
@@ -390,6 +409,7 @@
             {
                 m_Root = oldLeft;
             }
+
             return oldLeft;
         }
 
@@ -424,6 +444,7 @@
             {
                 m_Root = oldRight;
             }
+
             ++oldRight.Level;
             return oldRight;
         }
@@ -557,6 +578,30 @@
             }
         }
 
+        public IEnumerator<T> GetEnumerator()
+        {
+            var result = new List<T>();
+            IterateNodes(m_Root, result);
+            result.Sort();
+            return result.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        private void IterateNodes(Node t, List<T> list)
+        {
+            // return if at bottom node
+            if (t == m_Bottom) return;
+
+            list.Add(t.Data);
+
+            IterateNodes(t.Left, list);
+            IterateNodes(t.Right, list);
+        }
+
         /// <summary>
         /// Compute size of the (sub)tree rooted at t.
         /// </summary>
@@ -615,14 +660,14 @@
             try
             {
                 if (CompareTo(minKey, t.Data, a_ComparisonType) > 0 ||
-                            CompareTo(maxKey, t.Data, a_ComparisonType) < 0)
+                    CompareTo(maxKey, t.Data, a_ComparisonType) < 0)
                 {
                     return false;
                 }
                 else
                 {
                     return VerifyBST(t.Left, minKey, t.Data, a_ComparisonType) &&
-                    VerifyBST(t.Right, t.Data, maxKey, a_ComparisonType);
+                           VerifyBST(t.Right, t.Data, maxKey, a_ComparisonType);
                 }
             }
             catch (NotImplementedException)
@@ -647,7 +692,7 @@
             try
             {
                 if ((t.Left == m_Bottom || CompareTo(t.Data, t.Left.Data, a_ComparisonType) > 0) &&
-                            (t.Right == m_Bottom || CompareTo(t.Data, t.Right.Data, a_ComparisonType) <= 0))
+                    (t.Right == m_Bottom || CompareTo(t.Data, t.Right.Data, a_ComparisonType) <= 0))
                 {
                     return VerifyOrder(t.Left, a_ComparisonType) && VerifyOrder(t.Right, a_ComparisonType);
                 }
@@ -688,6 +733,48 @@
             return a.Equals(b);
         }
 
+        public override string ToString()
+        {
+            return string.Format("Root: {0}", Root);
+        }
+
+        /// <summary>
+        /// This method creates a Graphviz visualization of the tree which can be used to visually inspect the tree.
+        /// </summary>
+        /// <returns></returns>
+        public string Graphviz()
+        {
+            var builder = new StringBuilder();
+
+            builder.AppendLine("digraph G {");
+            GraphvizNode(m_Root, null, builder);
+            builder.AppendFormat("{0} [label=\"{1}\", color=red];\n", System.Math.Abs(RuntimeHelpers.GetHashCode(m_Bottom)), "bottom");
+            builder.AppendLine("}");
+
+            return builder.ToString();
+        }
+
+        private void GraphvizNode(Node node, Node parent, StringBuilder builder)
+        {
+            if (node == parent || node == null)
+            {
+                return;
+            }
+
+            if (node != m_Bottom)
+            {
+                builder.AppendFormat("{0} [label=\"{1} - {2}\"];\n", System.Math.Abs(RuntimeHelpers.GetHashCode(node)), RuntimeHelpers.GetHashCode(node.Data), node.Data);   
+            }
+
+            if (parent != null)
+            {
+                builder.AppendFormat("{0} -> {1};\n", System.Math.Abs(RuntimeHelpers.GetHashCode(parent)), System.Math.Abs(RuntimeHelpers.GetHashCode(node)));   
+            }
+            
+            GraphvizNode(node.Left, node, builder);
+            GraphvizNode(node.Right, node, builder);
+        }
+
         /// <summary>
         /// Class for all nodes in the tree.
         /// </summary>
@@ -710,6 +797,12 @@
                 Left = a_Left ?? this;
                 Right = a_Right ?? this;
                 Level = a_Level;
+            }
+
+            public override string ToString()
+            {
+                return string.Format("Left: ({0}), Right: ({1}), Data: ({2})", Left == this ? null : Left,
+                    Right == this ? null : Right, Data);
             }
         }
     }

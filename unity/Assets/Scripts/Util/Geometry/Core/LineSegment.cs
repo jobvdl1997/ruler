@@ -15,6 +15,28 @@
         public Vector2 Point2 { get; private set; }
 
         /// <summary>
+        /// Returns endpoint with lexicographically smallest coordinate.
+        /// </summary>
+        public Vector2 Min
+        {
+            get
+            {
+                return (Point1.x < Point2.x) || (MathUtil.EqualsEps(Point1.x,  Point2.x) && Point1.y < Point2.y) ? Point1 : Point2;
+            }
+        }
+
+        /// <summary>
+        /// Returns endpoint with lexicographically largest coordinate.
+        /// </summary>
+        public Vector2 Max
+        {
+            get
+            {
+                return (Point1.x > Point2.x) || (MathUtil.EqualsEps(Point1.x,  Point2.x) && Point1.y > Point2.y) ? Point1 : Point2;
+            }
+        }
+
+        /// <summary>
         /// Returns point in the middle of the endpoints.
         /// </summary>
         public Vector2 Midpoint { get { return (Point1 + Point2) / 2f; } }
@@ -33,6 +55,17 @@
             {
                 var perp = Vector2.Perpendicular(Point2 - Point1);
                 return new Line(Midpoint, Midpoint + perp);
+            }
+        }
+
+        /// <summary>
+        /// Gives the line segment with the endpoints swapped.
+        /// </summary>
+        public LineSegment Opposite
+        {
+            get
+            {
+                return new LineSegment(Point2, Point1);
             }
         }
 

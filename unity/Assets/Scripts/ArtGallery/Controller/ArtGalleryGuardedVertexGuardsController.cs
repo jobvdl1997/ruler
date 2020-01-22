@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Assets.Scripts.ArtGallery.Util;
 
 namespace ArtGallery
 {
@@ -27,6 +28,9 @@ namespace ArtGallery
 
         [SerializeField]
         protected GameObject m_unguardedSpritePrefab;
+        
+        // specified max number of lighthouses in level
+        private ILighthouseToLightHouseVisibility m_LighthouseToLighthouse = new SmartLighthouseToLighthouseVisibility();
 
         /// <inheritdoc />
         public override void CheckSolution()
@@ -61,21 +65,19 @@ namespace ArtGallery
 
             // move lighthouse to mouse position
             // will update visibility polygon
-            Vector3 location = ClosestVertex(worldlocation);
-            location.z = -2f;
-            m_selectedLighthouse.Pos = location;
+            Vector3 closestVertex = ClosestVertex(worldlocation);
+            closestVertex.z = -2f;
+            
+            // Change the position of the Lighthouse only if the closest vertext is not taken
+            if (!LighthouseExists(closestVertex))
+            {
+                m_selectedLighthouse.Pos = closestVertex;
+            }
+            
 
             // see if lighthouse was released 
             if (Input.GetMouseButtonUp(0))
             {
-                //check whether lighthouse is over the island
-                if (!LevelPolygon.ContainsInside(m_selectedLighthouse.Pos))
-                {
-                    // destroy the lighthouse
-                    m_solution.RemoveLighthouse(m_selectedLighthouse);
-                    Destroy(m_selectedLighthouse.gameObject);
-                    UpdateLighthouseText();
-                }
 
                 // lighthouse no longer selected
                 m_selectedLighthouse = null;
@@ -204,9 +206,9 @@ namespace ArtGallery
                                   l => new Vector2(l.Pos.x, l.Pos.y))
                               .ToList();
 
-            List<Vector2> unguardedLighthouses =
-                NaiveLighthouseToLighthouseVisibility.VisibleToOtherVertex(
-                    lightHousesList,
+            bool allLighthousesAreSeen =
+                m_LighthouseToLighthouse.VisibleToOtherVertex(
+                    lightHouses,
                     LevelPolygon);
 
             bool allLighthousesAreSeen = true;
