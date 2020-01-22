@@ -25,6 +25,10 @@ namespace ArtGallery
     /// </summary>
     public class ArtGalleryGuardedVertexGuardsController : AbstractArtGalleryController
     {
+
+        [SerializeField]
+        protected GameObject m_unguardedSpritePrefab;
+        
         // specified max number of lighthouses in level
         private ILighthouseToLightHouseVisibility m_LighthouseToLighthouse = new SmartLighthouseToLighthouseVisibility();
 
@@ -52,6 +56,12 @@ namespace ArtGallery
             // get current mouseposition
             var worldlocation = Camera.main.ScreenPointToRay(Input.mousePosition).origin;
             worldlocation.z = -2f;
+
+            // turn off all unguarded indicators
+            GameObject[] unguardedSprites = GameObject.FindGameObjectsWithTag("UnGuarded");
+            foreach (GameObject sprite in unguardedSprites) {
+                sprite.SetActive(false);
+            }
 
             // move lighthouse to mouse position
             // will update visibility polygon
@@ -113,6 +123,7 @@ namespace ArtGallery
         /// <summary>Handle a click on the island mesh.</summary>
         public override void HandleIslandClick()
         {
+
             // return if lighthouse was already selected or player can place no more lighthouses
             if (m_selectedLighthouse != null ||
                 m_solution.Count >= m_maxNumberOfLighthouses)
@@ -144,9 +155,18 @@ namespace ArtGallery
                 m_lighthousePrefab,
                 closestVertex,
                 Quaternion.identity) as GameObject;
+            // create unguarded sprite from prefab
+            Instantiate(m_unguardedSpritePrefab, go.transform);
 
             // add lighthouse to art gallery solution
             m_solution.AddLighthouse(go);
+
+            // turn off all unguarded indicators
+            GameObject[] unguardedSprites = GameObject.FindGameObjectsWithTag("UnGuarded");
+            foreach (GameObject sprite in unguardedSprites) {
+                sprite.SetActive(false);
+            }
+
             UpdateLighthouseText();
 
             CheckSolution();
@@ -180,8 +200,9 @@ namespace ArtGallery
         /// </returns>
         public bool CheckGuardedGuards()
         {
-            var lightHouses = m_solution
-                              .LightHouses.Select(
+            // get current lighthouses
+            var lightHousesObjects = m_solution.LightHouses;
+            var lightHouses = lightHousesObjects.Select(
                                   l => new Vector2(l.Pos.x, l.Pos.y))
                               .ToList();
 
@@ -189,8 +210,33 @@ namespace ArtGallery
                 m_LighthouseToLighthouse.VisibleToOtherVertex(
                     lightHouses,
                     LevelPolygon);
-            Debug.Log("all guards are seen" + allLighthousesAreSeen);
+
+            Debug.Log("all guards are seen: " + allLighthousesAreSeen);
+
+            // indicate which are unguarded, if any
+            if (!allLighthousesAreSeen) {
+                UpdateUnguardedSprites(lightHousesObjects, lightHouses);
+            }
+
             return allLighthousesAreSeen;
+        }
+
+        /// <summary>
+        /// Indicates in game which of the guards are unguarded
+        /// </summary>
+        private void UpdateUnguardedSprites(List<ArtGalleryLightHouse> lightHousesObjects, List<Vector2> lightHouses) {
+
+            foreach (ArtGalleryLightHouse lightHouseObject in lightHousesObjects) {
+                Vector2 vertex = lightHouseObject.Pos;
+                var othervertices = lightHouses.Where(i => i != vertex).ToList();
+                int numberOfObservingGuards = m_LighthouseToLighthouse.VisibleToOtherVertices(vertex, othervertices, LevelPolygon).Count;
+
+                // if no guard sees this guard, then toggle its indicator sprite
+                if (numberOfObservingGuards == 0) {
+                    lightHouseObject.gameObject.transform.Find("NotGuarded(Clone)").gameObject.SetActive(true);
+                }
+            }
+
         }
     }
 }

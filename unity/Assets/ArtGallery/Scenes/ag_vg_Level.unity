@@ -183,7 +183,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Torches Left:'
+  m_Text: 'Guards Left:'
 --- !u!222 &148341696
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -814,10 +814,11 @@ Prefab:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1356252125741086, guid: df3d444a912111e4dada71b6deec06cc, type: 2}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
+    - target: {fileID: 23476201235894956, guid: df3d444a912111e4dada71b6deec06cc,
+        type: 2}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 4c399a9beccafcb49b6f2db766abed3e, type: 2}
     m_RemovedComponents:
     - {fileID: 114624802737080694, guid: df3d444a912111e4dada71b6deec06cc, type: 2}
   m_SourcePrefab: {fileID: 100100000, guid: df3d444a912111e4dada71b6deec06cc, type: 2}
@@ -853,9 +854,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 67e172a58a068c2448d39180be113229, type: 3}
   - {fileID: 11400000, guid: 1d3b4ac3b34f3a7489a731de02ceef48, type: 3}
   m_victoryScreen: agVictory
-  m_lighthousePrefab: {fileID: 189480, guid: 52e5a999253ee854c99f4ecc1a19d437, type: 2}
+  m_lighthousePrefab: {fileID: 189480, guid: f2dc3a13ba22ce347b69b69528ffb6c3, type: 2}
   m_advanceButton: {fileID: 2135131466}
   m_lighthouseText: {fileID: 148341695}
+  m_unguardedSpritePrefab: {fileID: 189480, guid: ca78b1bba9af01b498fb2ee1b129ee2c,
+    type: 2}
 --- !u!1 &2028647603
 GameObject:
   m_ObjectHideFlags: 0
