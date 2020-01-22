@@ -201,8 +201,8 @@ namespace ArtGallery
         public bool CheckGuardedGuards()
         {
             // get current lighthouses
-            var lightHouses = m_solution.LightHouses;
-            var lightHousesList = lightHouses.Select(
+            var lightHousesObjects = m_solution.LightHouses;
+            var lightHouses = lightHousesObjects.Select(
                                   l => new Vector2(l.Pos.x, l.Pos.y))
                               .ToList();
 
@@ -211,16 +211,11 @@ namespace ArtGallery
                     lightHouses,
                     LevelPolygon);
 
-            bool allLighthousesAreSeen = true;
-            if (unguardedLighthouses.Count() != 0) {
-                allLighthousesAreSeen = false;
-            }
-
             Debug.Log("all guards are seen: " + allLighthousesAreSeen);
 
             // indicate which are unguarded, if any
             if (!allLighthousesAreSeen) {
-                UpdateUnguardedSprites(lightHouses, unguardedLighthouses);
+                UpdateUnguardedSprites(lightHousesObjects, lightHouses);
             }
 
             return allLighthousesAreSeen;
@@ -229,14 +224,16 @@ namespace ArtGallery
         /// <summary>
         /// Indicates in game which of the guards are unguarded
         /// </summary>
-        private void UpdateUnguardedSprites(List<ArtGalleryLightHouse> lightHouses, List<Vector2> unguardedLighthouses) {
-            //TODO: Update this with new guarded algorithm if we decide to use that
-            foreach (ArtGalleryLightHouse lighthouse in lightHouses) {
-                foreach (Vector2 unguardedLighthouse in unguardedLighthouses) {
-                    if (lighthouse.Pos.x == unguardedLighthouse.x && lighthouse.Pos.y == unguardedLighthouse.y) {
-                        // enable that lighthouse's sprite
-                        lighthouse.gameObject.transform.Find("NotGuarded(Clone)").gameObject.SetActive(true);
-                    }
+        private void UpdateUnguardedSprites(List<ArtGalleryLightHouse> lightHousesObjects, List<Vector2> lightHouses) {
+
+            foreach (ArtGalleryLightHouse lightHouseObject in lightHousesObjects) {
+                Vector2 vertex = lightHouseObject.Pos;
+                var othervertices = lightHouses.Where(i => i != vertex).ToList();
+                int numberOfObservingGuards = m_LighthouseToLighthouse.VisibleToOtherVertices(vertex, othervertices, LevelPolygon).Count;
+
+                // if no guard sees this guard, then toggle its indicator sprite
+                if (numberOfObservingGuards == 0) {
+                    lightHouseObject.gameObject.transform.Find("NotGuarded(Clone)").gameObject.SetActive(true);
                 }
             }
 
