@@ -211,8 +211,6 @@ namespace ArtGallery
                     lightHouses,
                     LevelPolygon);
 
-            Debug.Log("all guards are seen: " + allLighthousesAreSeen);
-
             // indicate which are unguarded, if any
             if (!allLighthousesAreSeen) {
                 UpdateUnguardedSprites(lightHousesObjects, lightHouses);
